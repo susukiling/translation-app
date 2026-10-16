@@ -363,7 +363,7 @@ wealth|富`;
 const BUILTIN={id:'basic',name:'基本英単語',builtin:true,words:RAW.split('\n').map((l,i)=>{const p=l.split('|');return{id:'b'+i,t:p[0],m:p[1],l:'en-US'}})};
 
 /* ---------- 保存データ ---------- */
-let ME=null,cloudT=0,syncState='';
+let ME=null,cloudT=0,syncState='',lastEngine='',gtest='';
 const KEY='honyaku-tango-v1';
 let D={src:'ja',dst:'en-US',hist:[],favs:[],decks:[{id:'my',name:'マイ単語帳',words:[]}],stats:{},set:{auto:false,speak:false},seeded:false};
 try{const r=localStorage.getItem(KEY);if(r)D=Object.assign(D,JSON.parse(r))}catch(e){}
@@ -445,7 +445,8 @@ async function mm(q,from,to){
   return j;
 }
 async function translate(text,from,to){
-  if(ME&&window.FB){try{const t=await window.FB.translate(text,L[from].name,L[to].name);if(t)return t}catch(e){console.warn('Gemini失敗、無料翻訳に切り替え',e)}}
+  if(ME&&window.FB){try{const t=await window.FB.translate(text,L[from].name,L[to].name);if(t){lastEngine='Gemini';return t}}catch(e){console.warn('Gemini失敗、無料翻訳に切り替え',e)}}
+  lastEngine='無料翻訳(Geminiは使われていません)';
   if(CONFIG.proxyUrl){
     const r=await fetch(CONFIG.proxyUrl,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({text,from:L[from].name,to:L[to].name})});
     if(!r.ok)throw{code:'upstream'};const j=await r.json();if(typeof j.t!=='string')throw{code:'upstream'};return j.t;
@@ -805,7 +806,8 @@ function sheetHTML(){
       const pn={'google.com':'Google','github.com':'GitHub','microsoft.com':'Microsoft',password:'メールアドレス'}[pv]||pv;
       return `<div class="sheet" data-act="scrim"><div class="panel sm" role="dialog" aria-label="アカウント">${ptop()}<h2 style="font-size:28px">アカウント</h2>
        <section class="card"><div class="lbl">${esc(pn)}でログイン中</div><div class="txt" style="font-size:24px">${esc(ME.displayName||ME.email||'')}</div>${ME.displayName&&ME.email?`<div class="ex">${esc(ME.email)}</div>`:''}</section>
-       <section class="card list"><div class="li"><div class="grow"><div class="t" style="font-size:18px">翻訳エンジン</div><div class="s">Google AI (Gemini)</div></div></div><div class="li"><div class="grow"><div class="t" style="font-size:18px">単語帳の同期</div><div class="s">${esc(syncState||'同期済み')}</div></div></div></section>
+       <section class="card list"><div class="li"><div class="grow"><div class="t" style="font-size:18px">翻訳エンジン</div><div class="s">Google AI (Gemini)</div></div></div><div class="li"><div class="grow"><div class="t" style="font-size:18px">単語帳の同期</div><div class="s">${esc(syncState||'同期済み')}</div></div></div><div class="li"><div class="grow"><div class="t" style="font-size:18px">直近の翻訳に使ったもの</div><div class="s">${esc(lastEngine||'まだ翻訳していません')}</div></div></div></section>
+       <button class="cta" data-act="gtest">Geminiを試す</button>${gtest?`<section class="card"><div class="txt" style="font-size:17px;font-weight:500;line-height:1.5">${esc(gtest)}</div></section>`:''}
        <button class="cta ghost" data-act="logout">ログアウト</button></div></div>`;
     }
     const social=(k,l)=>`<button class="cta ghost" data-act="auth-social" data-id="${k}" ${A.busy?'disabled':''}>${l}で続ける</button>`;
@@ -913,6 +915,8 @@ function act(a,t){
    case 'auth-go':authGo();break;
    case 'auth-social':authSocial(id);break;
    case 'auth-reset':authReset();break;
+   case 'gtest':{gtest='テスト中…';renderLayer();
+     window.FB.translate('こんにちは','日本語','英語 (アメリカ)').then(t=>{gtest='成功しました。Geminiの返事:「'+t+'」'}).catch(e=>{gtest='失敗しました: '+((e&&e.code)||'')+' '+String((e&&e.message)||e).slice(0,200)}).then(()=>{if(S.sheet&&S.sheet.type==='account')renderLayer()});break}
    case 'logout':window.FB.logout().then(()=>{S.sheet=null;toast('ログアウトしました');render()});break;
    case 'close':case 'scrim':closeSheet();break;
    case 'menu-tr':openMenu('tr');break;case 'menu-cam':openMenu('cam');break;case 'menu-view':openMenu('view');break;case 'menu-chat':openMenu('chat');break;case 'menu-deck':openMenu('deck');break;
