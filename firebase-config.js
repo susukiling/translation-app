@@ -8,3 +8,6 @@ export const firebaseConfig = {
 };
 // 翻訳に使う Gemini のモデル名。Firebase AI Logic で使える最新の Flash 系に変更できます。
 export const GEMINI_MODEL = "gemini-2.5-flash";
+
+
+export const appCheckSiteKey = "6Lcd_PItAAAAAKyXpA8_mRWKwuXnuvt4d56uqD-l";
