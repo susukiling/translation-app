@@ -1,5 +1,7 @@
 // Firebase 連携: ログイン(メール/Google/GitHub/Microsoft)・クラウド同期・Gemini 翻訳
-import { firebaseConfig, GEMINI_MODEL } from './firebase-config.js';
+import * as CFG from './firebase-config.js';
+const { firebaseConfig, GEMINI_MODEL } = CFG;
+const siteKey = CFG.appCheckSiteKey || ''; // App Check 用の reCAPTCHA Enterprise(Fraud Defense)のキー。未設定なら App Check を使わない
 const V = '11.10.0', G = `https://www.gstatic.com/firebasejs/${V}/`;
 
 const emit = fb => { window.FB = fb; window.dispatchEvent(new Event('fb-ready')); };
@@ -9,6 +11,7 @@ else try {
     import(G + 'firebase-app.js'), import(G + 'firebase-auth.js'),
     import(G + 'firebase-firestore.js'), import(G + 'firebase-ai.js')]);
   const app = initializeApp(firebaseConfig);
+  if (siteKey) { const AC = await import(G + 'firebase-app-check.js'); AC.initializeAppCheck(app, { provider: (CFG.appCheckType === 'v3' ? new AC.ReCaptchaV3Provider(siteKey) : new AC.ReCaptchaEnterpriseProvider(siteKey)), isTokenAutoRefreshEnabled: true }); }
   const auth = A.getAuth(app); auth.languageCode = 'ja';
   const db = F.getFirestore(app);
   const ai = I.getAI(app, { backend: new I.GoogleAIBackend() });
@@ -50,3 +53,5 @@ else try {
   try { await A.getRedirectResult(auth); } catch (e) { FB.redirectError = e; }
   emit(FB);
 } catch (e) { console.error(e); emit(null); }
+
+export const appCheckSiteKey = "6Leu7vItAAAAACmOxTOEEv6ha-OwXc87v7XTQD_K";
