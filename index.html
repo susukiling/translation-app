@@ -204,6 +204,48 @@ svg .f{fill:currentColor;stroke:none}
 .bub.r .ta{color:var(--fg)}
 .bub .ta::placeholder{color:var(--ph)}
 .micbig{align-self:center;width:96px;height:96px;border-radius:50%;border:0;background:var(--acc);color:var(--acc-ink);display:grid;place-items:center;margin-top:4px}
+/* 音声入力ポップアップ */
+.micpanel{height:auto;max-height:88%;align-items:center;text-align:center;gap:14px;padding-top:30px}
+.miclang{font-size:15px;font-weight:700;color:var(--sub);background:var(--card2);padding:6px 14px;border-radius:16px}
+.micring{position:relative;width:108px;height:108px;display:grid;place-items:center;margin:6px 0 0}
+.micring::before,.micring::after{content:"";position:absolute;inset:0;border-radius:50%;background:var(--acc);opacity:.25;animation:ring 1.6s ease-out infinite}
+.micring::after{animation-delay:.8s}
+.micring.off::before,.micring.off::after{animation:none;opacity:0}
+.micdot{position:relative;width:92px;height:92px;border-radius:50%;background:var(--acc);color:var(--acc-ink);display:grid;place-items:center}
+.micring.off .micdot{background:var(--card2);color:var(--sub)}
+.wave{display:flex;gap:6px;height:44px;align-items:center;justify-content:center}
+.wave i{width:6px;height:10px;border-radius:3px;background:var(--acc);animation:wv 1s ease-in-out infinite}
+.wave i:nth-child(2){animation-delay:.12s}.wave i:nth-child(3){animation-delay:.24s}.wave i:nth-child(4){animation-delay:.36s}.wave i:nth-child(5){animation-delay:.24s}.wave i:nth-child(6){animation-delay:.12s}
+.wave.off{visibility:hidden}
+.mictitle{font-size:22px;font-weight:700}.mictitle.err{color:var(--red)}
+.mictext{min-height:56px;max-height:30vh;overflow:auto;font-size:21px;font-weight:600;color:var(--acc);overflow-wrap:anywhere;width:100%;padding:0 6px}
+.micbtns{display:flex;gap:12px;width:100%;margin-top:6px}
+.micbtn{flex:1;border:0;border-radius:30px;padding:16px 0;font-size:19px;font-weight:700;background:var(--card2);color:var(--fg)}
+.micbtn.go{background:var(--acc);color:var(--acc-ink)}
+@keyframes ring{from{transform:scale(.85);opacity:.35}to{transform:scale(1.5);opacity:0}}
+@keyframes wv{0%,100%{height:10px}50%{height:40px}}
+@media (prefers-reduced-motion:reduce){.micring::before,.micring::after,.wave i{animation:none}}
+.micsheet{z-index:60}
+/* AIチャット */
+.cwrap{display:flex;flex-direction:column;gap:12px;padding-bottom:84px}
+.cm{max-width:86%;border-radius:24px;padding:12px 16px;font-size:18px;line-height:1.5;overflow-wrap:anywhere;white-space:pre-wrap}
+.cm.u{align-self:flex-end;background:var(--acc);color:var(--acc-ink);border-bottom-right-radius:6px;font-weight:600}
+.cm.a{align-self:flex-start;background:var(--card);border-bottom-left-radius:6px}
+.cm .en{font-weight:600}
+.cm .ja{margin-top:8px;color:var(--sub);font-size:16px}
+.cm .fx{margin-top:10px;padding:10px 12px;border-radius:14px;background:var(--acc-soft);color:var(--acc);font-size:15px;font-weight:600}
+.cm .cacts{display:flex;gap:8px;margin-top:8px;align-items:center}
+.cm .cacts .play{width:34px;height:34px;margin:0}
+.cm .tj{border:0;background:var(--card2);border-radius:14px;padding:6px 12px;font-size:14px;font-weight:700}
+.cbar{position:fixed;left:0;right:0;bottom:calc(86px + env(safe-area-inset-bottom,0px));z-index:19;display:flex;justify-content:center;pointer-events:none;padding:0 max(16px,env(safe-area-inset-left,0px))}
+.cbar>div{pointer-events:auto;display:flex;align-items:flex-end;gap:8px;width:100%;max-width:500px;background:var(--tab);border-radius:30px;padding:6px 6px 6px 16px;-webkit-backdrop-filter:blur(26px) saturate(1.4);backdrop-filter:blur(26px) saturate(1.4);box-shadow:0 0 0 .5px var(--sep)}
+.cbar textarea{flex:1;min-width:0;border:0;background:transparent;color:var(--fg);font:500 18px/1.35 var(--font);resize:none;outline:none;padding:9px 0;max-height:120px}
+.cbar textarea::placeholder{color:var(--ph)}
+.cbar .cbtn{flex:none;width:42px;height:42px;border-radius:50%;border:0;display:grid;place-items:center;background:var(--card2);color:var(--fg)}
+.cbar .cbtn.go{background:var(--acc);color:var(--acc-ink)}
+.cbar .cbtn:disabled{opacity:.4}
+.ghead{display:flex;align-items:center;justify-content:space-between;margin:14px 0 2px}
+.ghead b{font-size:15px}.ghead button{border:0;background:none;color:var(--acc);font-size:14px;font-weight:700;padding:4px 2px}
 /* quiz */
 .prog{flex:1;height:8px;border-radius:4px;background:var(--card2);overflow:hidden;margin:0 14px}
 .prog i{display:block;height:100%;background:var(--acc);border-radius:4px;transition:width .3s}
@@ -504,13 +546,56 @@ function copy(text){
   const fb=()=>{try{const t=document.createElement('textarea');t.value=text;t.style.position='fixed';t.style.opacity='0';document.body.appendChild(t);t.select();const ok=document.execCommand('copy');t.remove();toast(ok?'コピーしました':'コピーできませんでした')}catch(e){toast('コピーできませんでした')}};
   try{navigator.clipboard.writeText(text).then(()=>toast('コピーしました'),fb)}catch(e){fb()}
 }
+let micR=null;
+function micClose(){
+  const p=document.getElementById('micpop');if(p)p.remove();
+  if(micR){const r=micR;micR=null;r.onend=null;r.onerror=null;r.onresult=null;try{r.abort()}catch(e){}}
+}
 function mic(lang,done){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SR){toast('音声入力を使えません。キーボードで入力してください');return}
-  try{const r=new SR();r.lang=L[lang].tts;r.interimResults=false;
-    r.onresult=e=>done(e.results[0][0].transcript);
-    r.onerror=()=>toast('マイクを使えません。キーボードで入力してください');
-    r.start();toast('聞き取り中…')}catch(e){toast('マイクを使えません。キーボードで入力してください')}
+  if(!SR){toast('このブラウザでは音声入力を使えません。キーボードで入力してください');return}
+  micClose();
+  const info=L[lang]||{name:lang==='ja-JP'?'日本語':'英語',tts:lang};
+  const pop=document.createElement('div');pop.id='micpop';pop.className='sheet micsheet';
+  pop.innerHTML=`<div class="panel sm micpanel" role="dialog" aria-modal="true" aria-label="音声入力">
+    <div class="miclang">${esc(info.name)}</div>
+    <div class="micring" id="micring"><div class="micdot">${ic('mic',44)}</div></div>
+    <div class="wave" id="micwave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="mictitle" id="mictitle" aria-live="polite">聞き取り中…</div>
+    <div class="mictext" id="mictext"></div>
+    <div class="micbtns"><button class="micbtn" id="micCancel">キャンセル</button><button class="micbtn go" id="micDone">完了</button></div></div>`;
+  document.body.appendChild(pop);
+  const $t=id=>document.getElementById(id);
+  let txt='',closed=false;
+  const finish=()=>{if(closed)return;closed=true;const v=txt.trim();micClose();if(v)done(v)};
+  const fail=(title,msg)=>{
+    if(closed)return;
+    const t=$t('mictitle');if(!t)return;
+    t.textContent=title;t.classList.add('err');$t('mictext').textContent=msg||'';
+    $t('micring').classList.add('off');$t('micwave').classList.add('off');
+    const b=$t('micDone');b.textContent='もう一度';b.onclick=()=>{closed=true;micClose();mic(lang,done)};
+  };
+  $t('micCancel').onclick=()=>{closed=true;micClose()};
+  pop.addEventListener('click',e=>{if(e.target===pop){closed=true;micClose()}});
+  $t('micDone').onclick=()=>{
+    if(micR){try{micR.stop()}catch(e){finish()}setTimeout(finish,1200)}else finish();
+  };
+  try{
+    const r=new SR();micR=r;r.lang=info.tts;r.interimResults=true;r.continuous=false;r.maxAlternatives=1;
+    r.onresult=e=>{
+      let t='';for(let k=0;k<e.results.length;k++)t+=e.results[k][0].transcript;
+      txt=t;const el=$t('mictext');if(el)el.textContent=t;
+    };
+    r.onerror=e=>{
+      const c=e&&e.error;
+      if(c==='no-speech'){fail('聞き取れませんでした','もう少し近づいて、はっきり話してみてください')}
+      else if(c==='not-allowed'||c==='service-not-allowed'){fail('マイクを使えません','設定でマイクと音声認識を許可してください。ホーム画面のアプリでは使えないことがあります。その場合はキーボードのマイクボタンをお使いください')}
+      else if(c==='aborted'){}
+      else fail('うまく聞き取れませんでした','もう一度お試しください')
+    };
+    r.onend=()=>{if(closed)return;if(txt.trim())finish();else fail('聞き取れませんでした','もう少し近づいて、はっきり話してみてください')};
+    r.start();
+  }catch(e){fail('マイクを使えません','キーボードで入力してください')}
 }
 let tt=0;
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2200)}
@@ -536,6 +621,7 @@ const IC={
  check:'<path d="M5 12.5l4.5 4.5L19 7" stroke-width="2.6"/>',
  photo:'<rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.6"/><path d="M4 18l5-5 4 4 3-3 4 4"/>',
  user:'<circle cx="12" cy="8.5" r="4"/><path d="M4 20.5c.6-4 3.8-6 8-6s7.4 2 8 6"/>',
+ send:'<path d="M12 19V5M5.5 11.5L12 5l6.5 6.5" stroke-width="2.6"/>',
  tAi:'<path class="f" d="M12 1.6c.7 5.6 4.8 9.7 10.4 10.4-5.6.7-9.7 4.8-10.4 10.4C11.3 16.8 7.2 12.7 1.6 12 7.2 11.3 11.3 7.2 12 1.6z"/><path class="f" d="M19.6 1.2c.25 1.9 1.6 3.3 3.5 3.5-1.9.25-3.3 1.6-3.5 3.5-.25-1.9-1.6-3.3-3.5-3.5 1.9-.25 3.3-1.6 3.5-3.5z" transform="translate(-1 0) scale(.9)"/>',
  link:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
  doc:'<path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/>',
@@ -739,8 +825,12 @@ function resumeTimers(){
 
 /* ---------- 画面: AI (Gemini) ---------- */
 function aiDef(){return{sub:'make',mode:'text',text:'',url:'',files:[],count:'15',level:'中級',busy:false,err:'',res:null,name:'',
-  src:'deck',dk:'basic',ac:'10',len:'mid',gram:'',topic:'',lvl:'高校',fmt:'fill',aq:null}}
-const GRAMMAR=['現在完了','受動態','関係代名詞','仮定法','不定詞','動名詞','比較','分詞構文'];
+  src:'deck',dk:'basic',ac:'10',len:'mid',gram:'',topic:'',lvl:'高校',fmt:'fill',aq:null,
+  ch:{mode:'qa',qa:[],talk:[],lvl:'中学',busy:false,err:'',in:''}}}
+const G_JH=['be動詞','一般動詞','三単現のs','複数形','代名詞','疑問詞','命令文','現在進行形','過去形','過去進行形','未来形(will)','be going to','助動詞(can・may)','助動詞(must・should)','Will you / Shall I','不定詞(名詞的用法)','不定詞(副詞的用法)','不定詞(形容詞的用法)','動名詞','原級比較(as…as)','比較級','最上級','受動態','現在完了(完了・経験・継続)','現在完了進行形','後置修飾(分詞)','関係代名詞(主格)','関係代名詞(目的格)','接続詞(that・if・when)','There is / are','間接疑問文','付加疑問文','感嘆文','SVOO(give型)','SVOC(call型)','too…to / enough to','It is…for…to','疑問詞+to不定詞','tell・want+人+to','仮定法(I wish)'];
+const G_HS=['過去完了','未来完了','過去完了進行形','未来進行形','時制の一致','助動詞+have p.p.','used to / would','had better / would rather','助動詞(推量)','受動態(群動詞)','受動態(SVOC)','使役動詞(make・let・have)','知覚動詞','不定詞の完了形','不定詞の独立用法','不定詞(目的・結果)','意味上の主語','動名詞の完了形','動名詞と不定詞の違い','分詞構文','独立分詞構文','with+O+分詞(付帯状況)','関係代名詞(所有格)','前置詞+関係代名詞','関係副詞','関係詞の非制限用法','関係代名詞what','複合関係詞','仮定法過去','仮定法過去完了','仮定法(if節なし)','仮定法(as if・If only)','It is time+仮定法','倒置','強調構文','省略','同格のthat','形式主語・形式目的語','無生物主語','部分否定','二重否定','the+比較級, the+比較級','倍数表現','最上級相当表現','譲歩(however・no matter)','話法(直接・間接)','冠詞・名詞','前置詞','接続詞(unless・as long as)'];
+const gSel=()=>S.ai.gram.split('、').map(x=>x.trim()).filter(Boolean);
+const gChips=list=>list.map(g=>`<button class="chipb" data-act="ai-chip" data-id="${esc(g)}" aria-pressed="${gSel().includes(g)}">${esc(g)}</button>`).join('');
 const segB=(act,cur,list)=>`<div class="seg">${list.map(o=>`<button data-act="${act}" data-id="${o[0]}" aria-pressed="${String(cur)===String(o[0])}">${esc(o[1])}</button>`).join('')}</div>`;
 function aiErrText(e){
   const m=String((e&&e.message)||e||'');
@@ -752,11 +842,11 @@ function aiErrText(e){
 }
 function aiHTML(){
   const A=S.ai,live=ME&&window.FB;
-  let h=`<header class="top">${gb('acct',ic('user',24),'アカウント')}<span></span></header><h1 class="title-lg">AI</h1><p class="subline">Google AI (Gemini) で単語帳と問題を作ります</p>`;
+  let h=`<header class="top">${gb('acct',ic('user',24),'アカウント')}<span></span></header><h1 class="title-lg">AI</h1><p class="subline">Google AI (Gemini) で単語帳・問題づくり・チャットができます</p>`;
   if(A.aq&&A.sub==='ask')return aqHTML();
-  h+=`<div class="seg big" role="tablist">${[['make','作成'],['ask','出題']].map(o=>`<button role="tab" data-act="ai-sub" data-id="${o[0]}" aria-pressed="${A.sub===o[0]}">${o[1]}</button>`).join('')}</div>`;
+  h+=`<div class="seg big" role="tablist">${[['make','作成'],['ask','出題'],['chat','チャット']].map(o=>`<button role="tab" data-act="ai-sub" data-id="${o[0]}" aria-pressed="${A.sub===o[0]}">${o[1]}</button>`).join('')}</div>`;
   if(!live)return h+`<section class="card"><div class="lbl acc">ログインが必要です</div><div class="txt" style="font-size:20px;font-weight:500;line-height:1.5">AI機能はGeminiを使うので、ログインしてから使えます。</div></section><button class="cta" data-act="acct">ログイン</button>`;
-  return h+(A.sub==='make'?makeHTML():askHTML());
+  return h+(A.sub==='make'?makeHTML():A.sub==='ask'?askHTML():acHTML());
 }
 function makeHTML(){
   const A=S.ai;
@@ -827,6 +917,57 @@ function aiSave(toMy){
   toast('「'+deck.name+'」に'+n+'語を保存しました');
 }
 
+
+/* ----- チャット ----- */
+const CH_SUG={qa:['現在完了と過去形はどう違うの?','関係代名詞のwhatの使い方を教えて','be going to と will の違いは?','仮定法過去をやさしく説明して'],
+  talk:['Hi! How was your day?','Let\'s talk about my favorite food.','What did you do last weekend?','I want to talk about my hobby.']};
+const fmtQ=t=>esc(t).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
+function acHTML(){
+  const C=S.ai.ch,ms=C[C.mode],talk=C.mode==='talk';
+  let h=`<div class="seg" style="margin-top:2px">${[['qa','日本語で質問'],['talk','英語で雑談']].map(o=>`<button data-act="ai-cmode" data-id="${o[0]}" aria-pressed="${C.mode===o[0]}">${o[1]}</button>`).join('')}</div>`;
+  if(talk)h+=`<div class="ghead" style="margin:0"><b>英語のレベル</b><button data-act="ai-cclr">会話を消去</button></div>${segB('ai-clvl',C.lvl,[['中学','中学'],['高校','高校'],['大学・TOEIC','大学']])}`;
+  else if(ms.length)h+=`<div class="ghead" style="margin:0"><span></span><button data-act="ai-cclr">会話を消去</button></div>`;
+  h+=`<div class="cwrap">`;
+  if(!ms.length)h+=`<section class="card"><div class="lbl acc">${talk?'英語で話してみよう':'英語のことを何でも質問'}</div><p class="hint" style="text-align:left;margin:6px 0 0;font-size:16px;line-height:1.5">${talk?'英語や日本語で話しかけると、AIが英語で返事をします。間違いがあれば、やさしく直してくれます。マイクで話すこともできます。':'文法・単語・英文の意味・勉強のしかたなど、日本語で質問できます。'}</p><div class="chips">${CH_SUG[C.mode].map((t,k)=>`<button class="chipb" data-act="ai-csug" data-i="${k}">${esc(t)}</button>`).join('')}</div></section>`;
+  h+=ms.map((m,i)=>{
+    if(m.role==='user')return `<div class="cm u">${esc(m.text)}</div>`;
+    if(m.loading)return `<div class="cm a"><span class="dots"><i></i><i></i><i></i></span></div>`;
+    if(talk)return `<div class="cm a"><div class="en">${esc(m.text)}</div><div class="cacts">${pb('ai-csay',i,1)}<button class="tj" data-act="ai-cja" data-id="${i}">${m.showJa?'訳を隠す':'日本語訳'}</button></div>${m.showJa&&m.ja?`<div class="ja">${esc(m.ja)}</div>`:''}${m.fix?`<div class="fx">添削: ${esc(m.fix)}</div>`:''}</div>`;
+    return `<div class="cm a">${fmtQ(m.text)}</div>`;
+  }).join('');
+  if(C.err)h+=`<section class="card"><div class="fb ng" role="alert" style="font-size:16px;line-height:1.5">${esc(C.err)}</div></section>`;
+  h+=`</div><div class="cbar"><div><textarea id="cIn" rows="1" placeholder="${talk?'英語で話しかけてみよう':'日本語で質問を入力'}" enterkeyhint="send" aria-label="メッセージ">${esc(C.in)}</textarea>
+   <button class="cbtn" data-act="ai-cmic" aria-label="音声入力">${ic('mic',22)}</button>
+   <button class="cbtn go" data-act="ai-csend" aria-label="送信" ${C.busy?'disabled':''}>${ic('send',22)}</button></div></div>`;
+  return h;
+}
+async function aiChatSend(textIn){
+  const C=S.ai.ch;if(C.busy)return;
+  const text=(textIn!=null?textIn:C.in).trim();if(!text)return;
+  const mode=C.mode,ms=C[mode];
+  const um={role:'user',text},ph={role:'ai',text:'',loading:true};
+  ms.push(um,ph);C.in='';C.err='';C.busy=true;render();scrollEnd();
+  try{
+    const hist=ms.filter(m=>!m.loading).slice(-14).map(m=>({role:m.role,text:m.text}));
+    const r=await window.FB.chat(hist,mode,C.lvl);
+    if(mode==='talk'){
+      const reply=String((r&&r.reply)||'').trim();if(!reply)throw new Error('JSON: 返事が空でした');
+      Object.assign(ph,{loading:false,text:reply,ja:String(r.ja||''),fix:String(r.fix||'')});
+      if(D.set.speak)speak(reply,'en-US');
+    }else{
+      const t=String(r||'').trim();if(!t)throw new Error('JSON: 返事が空でした');
+      Object.assign(ph,{loading:false,text:t});
+    }
+  }catch(e){
+    console.warn(e);
+    const k=ms.indexOf(ph);if(k>=0)ms.splice(k,1);
+    const u=ms.indexOf(um);if(u>=0)ms.splice(u,1);
+    C.in=text;C.err=aiErrText(e);
+  }
+  C.busy=false;
+  if(S.tab==='ai'&&S.ai.sub==='chat'){render();scrollEnd()}
+}
+
 /* ----- 出題 ----- */
 function askHTML(){
   const A=S.ai,dk=allDecks();
@@ -834,8 +975,10 @@ function askHTML(){
   if(A.src==='deck')h+=`<div style="margin:6px -4px 0">${dk.map(d=>`<button class="li" data-act="ai-deck" data-id="${esc(d.id)}" style="padding:12px 4px"><div class="grow"><div class="t" style="font-size:18px">${esc(d.name)}</div><div class="s">${d.words.length}語</div></div><span class="chk">${A.dk===d.id?ic('check',22):''}</span></button>`).join('')}</div>`;
   else h+=`<div class="field" style="margin-top:14px"><span class="lbl" style="color:var(--sub)">テーマ(空でもOK)</span><input id="aTopic" value="${esc(A.topic)}" placeholder="例: 旅行、環境問題、ビジネス" style="font-size:19px"></div>`;
   h+=`</section>
-  <section class="card"><div class="lbl" style="margin-bottom:6px">使う文法</div><div class="field"><input id="aGram" value="${esc(A.gram)}" placeholder="例: 現在完了、関係代名詞(空なら指定なし)" style="font-size:19px"></div>
-   <div class="chips">${GRAMMAR.map(g=>`<button class="chipb" data-act="ai-chip" data-id="${g}" aria-pressed="${A.gram.split('、').includes(g)}">${g}</button>`).join('')}</div></section>
+  <section class="card"><div class="lbl" style="margin-bottom:6px">使う文法</div><div class="field"><input id="aGram" value="${esc(A.gram)}" placeholder="下から選ぶか、自由に入力(空なら指定なし)" style="font-size:19px"></div>
+   <div class="ghead"><b>中学</b><button data-act="ai-gall" data-id="jh">すべて選ぶ</button></div><div class="chips" style="margin-top:6px">${gChips(G_JH)}</div>
+   <div class="ghead"><b>高校</b><button data-act="ai-gall" data-id="hs">すべて選ぶ</button></div><div class="chips" style="margin-top:6px">${gChips(G_HS)}</div>
+   <div class="ghead"><span class="hint" style="margin:0;text-align:left">複数選ぶと、問題ごとにどれかを使います</span><button data-act="ai-gclr">選択をクリア</button></div></section>
   <section class="card"><div class="lbl" style="margin-bottom:10px">問題数</div>${segB('ai-ac',A.ac,[['5','5問'],['10','10問'],['15','15問'],['20','20問']])}
    <div class="lbl" style="margin:18px 0 10px">英文の長さ(語数)</div>${segB('ai-len',A.len,[['short','〜8語'],['mid','10〜15語'],['long','20語〜']])}
    <div class="lbl" style="margin:18px 0 10px">レベル</div>${segB('ai-lvl',A.lvl,[['中学','中学'],['高校','高校'],['大学・TOEIC','大学・TOEIC']])}
@@ -861,7 +1004,7 @@ async function aiAsk(){
     ?'形式は穴埋め4択: 英文の中の対象単語を____に置き換えて問題文(s)にする。選択肢(c)は、正解の1つと、紛らわしい誤答3つ(同じ品詞や似た形)にする。'
     :'形式は和訳4択: 英文を問題文(s)にして、選択肢(c)は、正しい日本語訳1つと、意味が少し違う誤答3つにする。';
   const prompt=`${target}
-英語の問題を作ってください。レベル: ${A.lvl}。各問題の英文の長さ: ${lenT}。使う文法: ${A.gram.trim()||'指定なし(自然な文)'}。${A.gram.trim()?'すべての英文でその文法を使い、解説でその文法のポイントを1文で説明します。':''}
+英語の問題を作ってください。レベル: ${A.lvl}。各問題の英文の長さ: ${lenT}。使う文法: ${A.gram.trim()||'指定なし(自然な文)'}。${A.gram.trim()?'各英文で、指定された文法のどれか1つを使い(複数あるときは問題ごとに変えます)、解説でその文法のポイントを1文で説明します。':''}
 ${fmtT}
 出力はJSONのみ: {"questions":[{"w":"対象の英単語","s":"問題文","sj":"英文全体の日本語訳","c":["選択肢1","選択肢2","選択肢3","選択肢4"],"a":0,"e":"解説(日本語、2文以内)"}]}。"a"は正解の選択肢の番号(0〜3)です。`;
   A.busy=true;render();
@@ -1110,6 +1253,7 @@ document.addEventListener('keydown',e=>{
     else if(el.id==='spell'){e.preventDefault();act('check')}
     else if(el.id==='deckName'){e.preventDefault();act('deck-save')}
     else if(el.id==='aUrl'){e.preventDefault();aiMake()}
+    else if(el.id==='cIn'){e.preventDefault();aiChatSend()}
     else if(el.id==='aPass'||el.id==='aMail'){e.preventDefault();act('auth-go')}
     else if(el.classList&&el.classList.contains('li')&&el.getAttribute('role')==='button'){e.preventDefault();el.click()}
     else if(el.getAttribute&&el.getAttribute('role')==='button'&&el.dataset.act){e.preventDefault();el.click()}
@@ -1122,6 +1266,7 @@ document.addEventListener('input',e=>{
   else if(id==='inB'){S.inB=el.value}
   else if(id==='chA')S.chA=el.value;else if(id==='chB')S.chB=el.value;
   else if(id==='spell'){if(S.quiz)S.quiz.spell=el.value}
+  else if(id==='cIn'){S.ai.ch.in=el.value;el.style.height='auto';el.style.height=Math.min(el.scrollHeight,120)+'px'}
   else if(id==='deckName')S.form.name=el.value;
   else if(id==='aText')S.ai.text=el.value;else if(id==='aUrl')S.ai.url=el.value;else if(id==='aName2')S.ai.name=el.value;else if(id==='aGram'){S.ai.gram=el.value;document.querySelectorAll('.chipb').forEach(b=>b.setAttribute('aria-pressed',String(S.ai.gram.split('、').includes(b.dataset.id))))}else if(id==='aTopic')S.ai.topic=el.value;
   else if(id==='aMail')S.auth.mail=el.value;else if(id==='aPass')S.auth.pass=el.value;else if(id==='aName')S.auth.name=el.value;
@@ -1232,13 +1377,23 @@ function act(a,t){
    case 'ai-save-my':aiSave(true);break;
    case 'ai-src':S.ai.src=id;render();break;
    case 'ai-deck':S.ai.dk=id;render();break;
-   case 'ai-chip':{const g=S.ai.gram.split('、').map(x=>x.trim()).filter(Boolean);const i=g.indexOf(id);if(i>=0)g.splice(i,1);else g.push(id);S.ai.gram=g.join('、');render();break}
+   case 'ai-chip':{const g=gSel();const i=g.indexOf(id);if(i>=0)g.splice(i,1);else g.push(id);S.ai.gram=g.join('、');const y=window.scrollY;render();window.scrollTo(0,y);break}
+   case 'ai-gall':{const g=gSel();(id==='jh'?G_JH:G_HS).forEach(x=>{if(!g.includes(x))g.push(x)});S.ai.gram=g.join('、');const y=window.scrollY;render();window.scrollTo(0,y);break}
+   case 'ai-gclr':{S.ai.gram='';const y=window.scrollY;render();window.scrollTo(0,y);break}
    case 'ai-ac':S.ai.ac=id;render();break;
    case 'ai-len':S.ai.len=id;render();break;
    case 'ai-lvl':S.ai.lvl=id;render();break;
    case 'ai-fmt':S.ai.fmt=id;render();break;
    case 'ai-lim':D.set.alimit=+id;save();render();break;
    case 'ai-ask':aiAsk();break;
+   case 'ai-cmode':S.ai.ch.mode=id;S.ai.ch.err='';render();scrollEnd();break;
+   case 'ai-clvl':S.ai.ch.lvl=id;render();break;
+   case 'ai-cclr':S.ai.ch[S.ai.ch.mode]=[];S.ai.ch.err='';render();break;
+   case 'ai-csug':aiChatSend(CH_SUG[S.ai.ch.mode][+ds.i]);break;
+   case 'ai-csend':aiChatSend();break;
+   case 'ai-cmic':{const C=S.ai.ch;mic(C.mode==='talk'?'en-US':'ja',tx=>aiChatSend(tx));break}
+   case 'ai-cja':{const m=S.ai.ch.talk[+id];if(m){m.showJa=!m.showJa;const y=window.scrollY;render();window.scrollTo(0,y)}break}
+   case 'ai-csay':{const m=S.ai.ch.talk[+id];if(m)speak(m.text,'en-US');break}
    case 'aq-pick':{const q=S.ai.aq;if(q&&!q.done)aqAnswer(+ds.i,false);break}
    case 'aq-next':aqNext();break;
    case 'aq-close':case 'aq-new':stopTimer();S.ai.aq=null;render();window.scrollTo(0,0);break;
