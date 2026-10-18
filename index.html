@@ -64,7 +64,10 @@ svg .f{fill:currentColor;stroke:none}
 .top h1{position:absolute;left:0;right:0;text-align:center;margin:0;font-size:17px;font-weight:700;pointer-events:none}
 .top h1.ct{opacity:0;transition:opacity .15s}.scrolled .top h1.ct{opacity:1}
 .top .rt{display:flex;gap:10px;align-items:center;position:relative;z-index:1}
-.okb{display:none!important;background:var(--acc)!important;color:var(--acc-ink)}.editing .okb{display:grid!important}
+.rt .okb{width:0;height:48px;opacity:0;transform:scale(.3);margin-left:-10px;overflow:hidden;pointer-events:none;background:var(--acc);color:var(--acc-ink);
+  transform-origin:center;transition:width .32s cubic-bezier(.2,.9,.3,1.15),opacity .2s,transform .34s cubic-bezier(.2,.9,.3,1.3),margin .32s cubic-bezier(.2,.9,.3,1.15)}
+.editing .rt .okb{width:48px;opacity:1;transform:scale(1);margin-left:0;pointer-events:auto}
+.okb svg{flex:none}
 .swipe{position:relative}
 .swc{position:relative;z-index:1;touch-action:pan-y;transition:transform .22s ease;border-radius:30px}
 .swc>.card{margin:0}
@@ -74,12 +77,16 @@ svg .f{fill:currentColor;stroke:none}
 @keyframes enterIn{from{opacity:0;transform:translateY(30px) scale(.97)}}
 .swipe.enter,.inp.enter{animation:enterIn .4s cubic-bezier(.2,.8,.2,1)}
 @keyframes okpop{from{transform:scale(.3);opacity:0}}
-.editing .okb{animation:okpop .28s cubic-bezier(.2,.9,.3,1.3)}
 @keyframes sheetOut{to{transform:translateY(100%)}}
 @keyframes fadeOut{to{opacity:0}}
 .sheet.ghost{animation:fadeOut .26s ease-in forwards;pointer-events:none;z-index:45}
 .sheet.ghost .panel{animation:sheetOut .26s cubic-bezier(.4,0,1,1) forwards}
-@keyframes menuIn{from{transform:scale(.3);opacity:0}}
+@keyframes menuIn{0%{transform:scale(.18,.3);opacity:0;filter:blur(8px)}55%{opacity:1;filter:blur(2px)}100%{transform:none;opacity:1;filter:none}}
+@keyframes menuOut{to{transform:scale(.18,.3);opacity:0;filter:blur(8px)}}
+.menuwrap.ghost{pointer-events:none;z-index:61}
+.menuwrap.ghost .menu{animation:menuOut .24s cubic-bezier(.4,0,1,1) forwards}
+.gbtn{transition:transform .14s ease,opacity .2s,background-color .18s}
+.gbtn:active,.gbtn.hl{background-color:var(--tab-on);transform:none}
 .play,.acts button,.micb,.gbtn,.nextb,.swap button{transition:transform .14s ease,opacity .2s}
 .play:active,.acts button:active,.micb:active,.gbtn:active,.nextb:active,.swap button:active{transform:scale(.9)}
 .ta{transition:opacity .2s}
@@ -137,8 +144,14 @@ svg .f{fill:currentColor;stroke:none}
   padding:0 max(16px,env(safe-area-inset-left,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-right,0px))}
 .pillbar{pointer-events:auto;display:flex;gap:2px;padding:6px;border-radius:44px;background:var(--tab);width:100%;max-width:500px;
   -webkit-backdrop-filter:blur(26px) saturate(1.4);backdrop-filter:blur(26px) saturate(1.4);box-shadow:0 0 0 .5px var(--sep),0 10px 32px rgba(0,0,0,.28)}
-.tab{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 0 7px;border-radius:36px;border:0;background:none;color:var(--fg);font-size:10.5px;font-weight:600;--glyph:var(--tab)}
-.tab[aria-current="true"]{background:var(--tab-on);color:var(--acc);--glyph:var(--tab-on)}
+.pillbar{position:relative}
+.tabind{position:absolute;top:6px;bottom:6px;left:0;width:0;border-radius:36px;background:var(--tab-on);z-index:0;pointer-events:none}
+.tabind.lens{animation:lens .46s cubic-bezier(.3,1.2,.4,1)}
+@keyframes lens{0%{transform:scale(1)}35%{transform:scale(1.1,1.28)}100%{transform:scale(1)}}
+.tab svg.ipop{animation:ipop .46s cubic-bezier(.3,1.2,.4,1)}
+@keyframes ipop{0%{transform:scale(1)}35%{transform:scale(1.42) translateY(-2px)}100%{transform:scale(1)}}
+.tab{position:relative;z-index:1;flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 0 7px;border-radius:36px;border:0;background:none;color:var(--fg);font-size:10.5px;font-weight:600;--glyph:var(--tab)}
+.tab[aria-current="true"]{color:var(--acc);--glyph:var(--tab-on)}
 .tab svg text{fill:var(--glyph);stroke:none;font-family:var(--font);font-weight:700}
 .tab svg .g{stroke:var(--glyph)}
 /* sheets */
@@ -172,9 +185,9 @@ svg .f{fill:currentColor;stroke:none}
 /* menu */
 .menuwrap{position:fixed;inset:0;z-index:60;display:flex;justify-content:center}
 .menuin{width:100%;max-width:520px;position:relative}
-.menu{position:absolute;top:calc(env(safe-area-inset-top,0px) + 74px);right:max(16px,env(safe-area-inset-right,0px));min-width:250px;background:var(--card2);border-radius:26px;padding:8px;
-  box-shadow:0 12px 40px rgba(0,0,0,.35),0 0 0 .5px var(--sep);animation:menuIn .32s cubic-bezier(.2,.9,.3,1.12);transform-origin:top right}
-.menu.l{right:auto;left:max(16px,env(safe-area-inset-left,0px));transform-origin:top left}
+.menu{position:absolute;top:calc(env(safe-area-inset-top,0px) + 74px);right:max(16px,env(safe-area-inset-right,0px));min-width:230px;background:var(--card2);border-radius:30px;padding:8px;
+  box-shadow:0 12px 40px rgba(0,0,0,.35),0 0 0 .5px var(--sep);animation:menuIn .36s cubic-bezier(.2,.9,.3,1.08);transform-origin:calc(100% - 24px) -34px}
+.menu.l{right:auto;left:max(16px,env(safe-area-inset-left,0px));transform-origin:24px -34px}
 .menu button{display:flex;align-items:center;gap:12px;width:100%;background:none;border:0;padding:13px 14px;border-radius:18px;font-size:17px;text-align:left}
 .menu button:active{background:var(--tab-on)}
 .menu .ck{width:20px;color:var(--fg);flex:none}
@@ -716,7 +729,7 @@ function findItem(id){
 const SWW=84;
 const swipeHTML=(inner,btn)=>`<div class="swipe"><button class="swdel" ${btn.attrs} aria-label="${btn.label}">${ic(btn.icon,26)}</button><div class="swc">${inner}</div></div>`;
 function translateHTML(){
-  let h=`<header class="top">${gb('favs',ic('list'),'よく使う項目')}<h1 class="ct">翻訳</h1><span class="rt">${gb('ok',ic('check',24),'完了','okb')}${gb('menu-tr',ic('more'),'メニュー')}</span></header>`;
+  let h=`<header class="top">${gb('favs',ic('list'),'よく使う項目')}<h1 class="ct">翻訳</h1><span class="rt">${gb('menu-tr',ic('more'),'メニュー')}${gb('ok',ic('check',24),'完了','okb')}</span></header>`;
   h+='<h1 class="title-lg">翻訳</h1>';
   S.list.forEach((it,i)=>{h+=swipeHTML(cardHTML(it,{book:true}),{attrs:`data-act="del-item" data-i="${i}"`,label:'削除',icon:'trash'})});
   const has=!!(S.inA.trim()||S.inB.trim());
@@ -1313,11 +1326,36 @@ function render(){
   const ae=document.activeElement,keep=ae&&ae.id,pos=ae&&ae.selectionStart;
   let h;
   switch(S.tab){case 'translate':h=translateHTML();break;case 'camera':h=cameraHTML();break;case 'chat':h=chatHTML();break;case 'words':h=wordsHTML();break;case 'ai':h=aiHTML();break;default:h=studyHTML()}
-  $('#app').innerHTML=`<main class="screen">${h}</main><nav class="tabbar" aria-label="タブ"><div class="pillbar">${TABS.map(t=>`<button class="tab" data-act="tab" data-id="${t[0]}" aria-current="${S.tab===t[0]}">${ic(t[2],30)}<span>${t[1]}</span></button>`).join('')}</div></nav>`;
+  let main=document.querySelector('#app>main.screen');
+  if(!main||!document.querySelector('#app>nav.tabbar')){
+    $('#app').innerHTML=`<main class="screen"></main><nav class="tabbar" aria-label="タブ"><div class="pillbar"><i class="tabind"></i>${TABS.map(t=>`<button class="tab" data-act="tab" data-id="${t[0]}" aria-current="false">${ic(t[2],30)}<span>${t[1]}</span></button>`).join('')}</div></nav>`;
+    main=document.querySelector('#app>main.screen');
+  }
+  main.innerHTML=h;
+  document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-current',String(b.dataset.id===S.tab)));
+  updTabs(true);
   renderLayer();fitAll();
   if(keep){const el=document.getElementById(keep);if(el&&!el.disabled){el.focus();try{if(pos!=null)el.setSelectionRange(pos,pos)}catch(e){}}}
 }
+/* 選択中のタブの「つや玉」が、次のタブへ伸びながら移る */
+function updTabs(animate){
+  const bar=document.querySelector('.pillbar');if(!bar)return;
+  const cur=bar.querySelector('.tab[aria-current="true"]'),ind=bar.querySelector('.tabind');
+  if(!cur||!ind)return;
+  const x=cur.offsetLeft,w=cur.offsetWidth;
+  if(animate&&ind.dataset.x!==undefined&&ind.dataset.x!==String(x)){
+    ind.style.transition='left .44s cubic-bezier(.3,1.25,.4,1),width .44s cubic-bezier(.3,1.25,.4,1)';
+    ind.classList.remove('lens');void ind.offsetWidth;ind.classList.add('lens');
+    const sv=cur.querySelector('svg');if(sv){sv.classList.remove('ipop');void sv.getBoundingClientRect();sv.classList.add('ipop')}
+    clearTimeout(ind._t);ind._t=setTimeout(()=>{ind.classList.remove('lens');if(sv)sv.classList.remove('ipop')},520);
+  }else ind.style.transition='none';
+  ind.style.left=x+'px';ind.style.width=w+'px';ind.dataset.x=String(x);
+}
+window.addEventListener('resize',()=>updTabs(false));
 function renderLayer(){
+  const oldMenu=document.querySelector('#layer .menuwrap');
+  if(oldMenu&&!S.menu){const g=oldMenu.cloneNode(true);g.classList.add('ghost');g.removeAttribute('data-act');document.body.appendChild(g);setTimeout(()=>g.remove(),300)}
+  document.querySelectorAll('.gbtn[data-act^="menu-"]').forEach(b=>b.classList.toggle('hl',!!S.menu));
   const ae=document.activeElement,keep=ae&&ae.closest&&ae.closest('#layer')&&ae.id;
   $('#layer').innerHTML=(S.sheet?sheetHTML():'')+(S.menu?menuHTML():'');
   if(keep){const el=document.getElementById(keep);if(el)el.focus()}
@@ -1350,7 +1388,7 @@ document.addEventListener('click',e=>{
   const t=e.target.closest('[data-act]');
   if(!t){if(S.menu){S.menu=null;renderLayer()}return}
   const a=t.dataset.act;
-  if((a==='scrim'||a==='menu-bg')&&e.target!==t&&!(a==='scrim'&&S.sheet&&S.sheet.type==='expand'))return;
+  if((a==='scrim'||a==='menu-bg')&&e.target!==t&&!(a==='menu-bg'&&e.target.classList.contains('menuin'))&&!(a==='scrim'&&S.sheet&&S.sheet.type==='expand'))return;
   if(a==='menu-bg'){S.menu=null;renderLayer();return}
   act(a,t);
 });
