@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>翻訳と単語帳</title>
+<title>翻訳</title>
 <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -430,6 +430,7 @@ const KEY='honyaku-tango-v1';
 let D={src:'ja',dst:'en-US',hist:[],favs:[],decks:[{id:'my',name:'マイ単語帳',words:[]}],stats:{},set:{auto:false,speak:false},seeded:false};
 try{const r=localStorage.getItem(KEY);if(r)D=Object.assign(D,JSON.parse(r))}catch(e){}
 D.set=Object.assign({auto:false,speak:false},D.set||{});
+if(D.set.spkv!==2){D.set.speak=false;D.set.spkv=2}
 if(!Array.isArray(D.decks)||!D.decks.length)D.decks=[{id:'my',name:'マイ単語帳',words:[]}];
 if(!L[D.src])D.src='ja';if(!L[D.dst])D.dst='en-US';
 const hello=mk('ja','en-US','こんにちは','Hello');
@@ -538,9 +539,39 @@ function loadTess(){
 }
 
 /* ---------- 音声・クリップボード ---------- */
+let voicesCache=[];
+function loadVoices(){try{voicesCache=speechSynthesis.getVoices()||[]}catch(e){}}
+try{if('speechSynthesis' in window){loadVoices();speechSynthesis.onvoiceschanged=loadVoices}}catch(e){}
+function pickVoice(lang){
+  const l=String(lang||'').toLowerCase(),b=l.split('-')[0];
+  return voicesCache.find(v=>v.lang.toLowerCase().replace('_','-')===l)||voicesCache.find(v=>v.lang.toLowerCase().startsWith(b))||null;
+}
+/* iOSは、画面を触った直後でないと声が出ないことがあるため、最初のタッチで一度だけ「解除」する */
+let speechUnlocked=false;
+function unlockSpeech(){
+  if(speechUnlocked)return;speechUnlocked=true;
+  try{const u=new SpeechSynthesisUtterance(' ');u.volume=0;speechSynthesis.speak(u)}catch(e){}
+}
+['touchend','click','keydown'].forEach(ev=>window.addEventListener(ev,unlockSpeech,{once:false,passive:true,capture:true}));
+let speakSeq=0;
 function speak(text,lang){
-  try{if(!('speechSynthesis' in window))throw 0;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang=lang;speechSynthesis.speak(u)}
-  catch(e){toast('このブラウザでは音声を再生できません')}
+  text=String(text||'').trim();if(!text)return;
+  try{
+    if(!('speechSynthesis' in window))throw 0;
+    const my=++speakSeq;
+    loadVoices();
+    const go=()=>{
+      if(my!==speakSeq)return;
+      const u=new SpeechSynthesisUtterance(text);u.lang=lang;
+      const v=pickVoice(lang);if(v)u.voice=v;
+      u.rate=0.95;
+      u.onerror=e=>{if(e&&e.error&&e.error!=='canceled'&&e.error!=='interrupted')toast('音声を再生できませんでした。マナーモードを解除して、音量を確認してください')};
+      try{speechSynthesis.resume()}catch(e){}
+      speechSynthesis.speak(u);
+    };
+    /* ボタンを押した直後に、そのまま再生する(iOSは待つと止められる)。再生中のときだけ止めて少し待つ */
+    if(speechSynthesis.speaking||speechSynthesis.pending){try{speechSynthesis.cancel()}catch(e){}setTimeout(go,80)}else go();
+  }catch(e){toast('このブラウザでは音声を再生できません')}
 }
 function copy(text){
   const fb=()=>{try{const t=document.createElement('textarea');t.value=text;t.style.position='fixed';t.style.opacity='0';document.body.appendChild(t);t.select();const ok=document.execCommand('copy');t.remove();toast(ok?'コピーしました':'コピーできませんでした')}catch(e){toast('コピーできませんでした')}};
