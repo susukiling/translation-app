@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>翻訳</title>
+<title>翻訳と単語帳</title>
 <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -62,6 +62,34 @@ svg .f{fill:currentColor;stroke:none}
 .top{position:sticky;top:env(safe-area-inset-top,0px);z-index:6;display:flex;align-items:center;justify-content:space-between;
   min-height:72px;padding:12px 0 8px;background:var(--bg);margin:0 -2px;padding-left:2px;padding-right:2px}
 .top h1{position:absolute;left:0;right:0;text-align:center;margin:0;font-size:17px;font-weight:700;pointer-events:none}
+.top h1.ct{opacity:0;transition:opacity .15s}.scrolled .top h1.ct{opacity:1}
+.top .rt{display:flex;gap:10px;align-items:center;position:relative;z-index:1}
+.okb{display:none!important;background:var(--acc)!important;color:var(--acc-ink)}.editing .okb{display:grid!important}
+.swipe{position:relative}
+.swc{position:relative;z-index:1;touch-action:pan-y;transition:transform .22s ease;border-radius:30px}
+.swc>.card{margin:0}
+.swdel{position:absolute;right:2px;top:50%;transform:translateY(-50%);width:64px;height:64px;border-radius:32px;border:0;background:#ff453a;color:#fff;display:grid;place-items:center;z-index:0}
+.swdel svg{stroke:#fff;flex:none}.swdel svg .f{fill:#fff}
+.swdel{overflow:hidden;opacity:1}
+@keyframes enterIn{from{opacity:0;transform:translateY(30px) scale(.97)}}
+.swipe.enter,.inp.enter{animation:enterIn .4s cubic-bezier(.2,.8,.2,1)}
+@keyframes okpop{from{transform:scale(.3);opacity:0}}
+.editing .okb{animation:okpop .28s cubic-bezier(.2,.9,.3,1.3)}
+@keyframes sheetOut{to{transform:translateY(100%)}}
+@keyframes fadeOut{to{opacity:0}}
+.sheet.ghost{animation:fadeOut .26s ease-in forwards;pointer-events:none;z-index:45}
+.sheet.ghost .panel{animation:sheetOut .26s cubic-bezier(.4,0,1,1) forwards}
+@keyframes menuIn{from{transform:scale(.3);opacity:0}}
+.play,.acts button,.micb,.gbtn,.nextb,.swap button{transition:transform .14s ease,opacity .2s}
+.play:active,.acts button:active,.micb:active,.gbtn:active,.nextb:active,.swap button:active{transform:scale(.9)}
+.ta{transition:opacity .2s}
+.inpacts{align-items:center;color:var(--acc)}
+.inpacts span{opacity:.38;display:grid;place-items:center;padding:4px}
+.nextb{margin-left:auto;border:0;border-radius:22px;padding:9px 16px;background:var(--bg);color:var(--acc);font-size:15px;font-weight:700;opacity:.4}
+.nextb.on{opacity:1}
+.emptyfav{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;color:var(--sub);min-height:50vh}
+.emptyfav .big{color:var(--sub);opacity:.7;margin-bottom:6px}.emptyfav .big svg{fill:currentColor;stroke:none}
+.emptyfav b{color:var(--fg);font-size:20px}.emptyfav p{margin:0;font-size:14px}
 .top .grow{flex:1;min-width:0;margin:0 14px}
 .gbtn{width:48px;height:48px;border-radius:50%;border:0;background:var(--btn);display:grid;place-items:center;flex:none;
   -webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);box-shadow:0 0 0 .5px var(--sep);position:relative;z-index:1}
@@ -145,7 +173,7 @@ svg .f{fill:currentColor;stroke:none}
 .menuwrap{position:fixed;inset:0;z-index:60;display:flex;justify-content:center}
 .menuin{width:100%;max-width:520px;position:relative}
 .menu{position:absolute;top:calc(env(safe-area-inset-top,0px) + 74px);right:max(16px,env(safe-area-inset-right,0px));min-width:250px;background:var(--card2);border-radius:26px;padding:8px;
-  box-shadow:0 12px 40px rgba(0,0,0,.35),0 0 0 .5px var(--sep);animation:pop .16s ease-out;transform-origin:top right}
+  box-shadow:0 12px 40px rgba(0,0,0,.35),0 0 0 .5px var(--sep);animation:menuIn .32s cubic-bezier(.2,.9,.3,1.12);transform-origin:top right}
 .menu.l{right:auto;left:max(16px,env(safe-area-inset-left,0px));transform-origin:top left}
 .menu button{display:flex;align-items:center;gap:12px;width:100%;background:none;border:0;padding:13px 14px;border-radius:18px;font-size:17px;text-align:left}
 .menu button:active{background:var(--tab-on)}
@@ -439,7 +467,7 @@ let S={auth:{mode:'in',mail:'',pass:'',name:'',busy:false,err:'',info:''},tab:'t
   deckOpen:null,sdeck:'basic',smode:'t2m',scount:'10',quiz:null};
 S.ai=aiDef();
 if(!D.seeded){D.hist=[hello];D.favs=[hello];D.seeded=true;save()}
-S.res=D.hist[0]||null;
+S.res=null;S.list=[];S.live=null;S.liveDir='A';
 function save(){try{localStorage.setItem(KEY,JSON.stringify(D))}catch(e){}cloudSave()}
 /* ---------- アカウント・クラウド同期 ---------- */
 const AUTHERR={'auth/invalid-email':'メールアドレスの形式が正しくありません','auth/missing-password':'パスワードを入力してください','auth/weak-password':'パスワードは6文字以上にしてください','auth/email-already-in-use':'このメールアドレスは登録済みです。ログインしてください','auth/invalid-credential':'メールアドレスまたはパスワードが違います','auth/wrong-password':'メールアドレスまたはパスワードが違います','auth/user-not-found':'メールアドレスまたはパスワードが違います','auth/too-many-requests':'試行回数が多すぎます。しばらくしてからお試しください','auth/popup-closed-by-user':'','auth/cancelled-popup-request':'','auth/account-exists-with-different-credential':'同じメールアドレスで別の方法で登録済みです。その方法でログインしてください','auth/operation-not-allowed':'このログイン方法はまだ有効になっていません(Firebaseの設定を確認してください)','auth/unauthorized-domain':'このドメインはFirebaseで許可されていません(承認済みドメインに追加してください)','auth/network-request-failed':'ネットワークに接続できません','auth/popup-blocked':'ポップアップがブロックされました。許可してからもう一度お試しください','auth/invalid-api-key':'firebase-config.js の apiKey が正しくありません','auth/api-key-not-valid':'firebase-config.js の apiKey が正しくありません','auth/configuration-not-found':'Firebase の Authentication が始まっていません(「始める」を押してください)','auth/internal-error':'Firebase 側の設定エラーです。Googleログインの有効化とサポートメールを確認してください'};
@@ -679,43 +707,86 @@ function cardHTML(it,o){
   </section>`;
 }
 function findItem(id){
-  if(id==='tmp'||(S.res&&S.res.id===id))return S.res;
-  const pools=[D.hist,D.favs,(S.cam&&S.cam.blocks)||[]];
+  const pools=[S.list||[],D.hist,D.favs,(S.cam&&S.cam.blocks)||[]];
   for(const p of pools){const f=p.find(x=>x.id===id);if(f)return f}
   return null;
 }
 
 /* ---------- 画面: 翻訳 ---------- */
+const SWW=84;
+const swipeHTML=(inner,btn)=>`<div class="swipe"><button class="swdel" ${btn.attrs} aria-label="${btn.label}">${ic(btn.icon,26)}</button><div class="swc">${inner}</div></div>`;
 function translateHTML(){
-  const r=S.res;
-  let h=`<header class="top">${gb('favs',ic('list'),'よく使う項目')}${r?'<h1>翻訳</h1>':''}${gb('menu-tr',ic('more'),'メニュー')}</header>`;
-  if(!r)h+='<h1 class="title-lg">翻訳</h1>';
-  if(r)h+=cardHTML(r,{book:true});
+  let h=`<header class="top">${gb('favs',ic('list'),'よく使う項目')}<h1 class="ct">翻訳</h1><span class="rt">${gb('ok',ic('check',24),'完了','okb')}${gb('menu-tr',ic('more'),'メニュー')}</span></header>`;
+  h+='<h1 class="title-lg">翻訳</h1>';
+  S.list.forEach((it,i)=>{h+=swipeHTML(cardHTML(it,{book:true}),{attrs:`data-act="del-item" data-i="${i}"`,label:'削除',icon:'trash'})});
+  const has=!!(S.inA.trim()||S.inB.trim());
   h+=`<section class="card inp" aria-label="入力">
    <div><button class="chip" data-act="pick-src">${esc(L[S.src].name)}${ic('ud',14)}</button>
-    <div class="fldrow"><textarea id="inA" class="ta auto" rows="2" placeholder="${esc(L[S.src].ph)}" enterkeyhint="go" aria-label="翻訳するテキスト">${esc(S.inA)}</textarea>
+    <div class="fldrow"><textarea id="inA" class="ta auto" rows="2" placeholder="${esc(L[S.src].ph)}" enterkeyhint="next" aria-label="翻訳するテキスト">${esc(S.inA)}</textarea>
     <button class="micb" data-act="mic-A" aria-label="音声入力">${ic('mic',30)}</button></div></div>
    <div class="swap"><i></i><button data-act="swap" aria-label="言語を入れ替える">${ic('swap',26)}</button><i></i></div>
    <div><button class="chip acc" data-act="pick-dst">${esc(L[S.dst].name)}${ic('ud',14)}</button>
-    <div class="fldrow"><textarea id="inB" class="ta acc auto" rows="2" placeholder="${esc(L[S.dst].ph)}" enterkeyhint="go" aria-label="逆方向に翻訳するテキスト">${esc(S.inB)}</textarea>
+    <div class="fldrow"><textarea id="inB" class="ta acc auto" rows="2" placeholder="${esc(L[S.dst].ph)}" enterkeyhint="next" aria-label="逆方向に翻訳するテキスト">${esc(S.inB)}</textarea>
     <button class="micb acc" data-act="mic-B" aria-label="音声入力">${ic('mic',30)}</button></div></div>
+   <div class="acts inpacts" aria-hidden="true"><span>${ic('expand',28)}</span><span>${ic('star',28)}</span><span>${ic('book',28)}</span><span>${ic('copy',28)}</span>
+    <button class="nextb${has?' on':''}" id="nextb" data-act="commit">次へ</button></div>
   </section>`;
   return h;
 }
-let tok=0,autoT=0;
-async function submit(dir,keep){
-  const text=(dir==='A'?S.inA:S.inB).trim();if(!text)return;
+let tok=0,liveT=0,liveTok=0;
+function updLive(){const b=document.getElementById('nextb');if(b)b.classList.toggle('on',!!(S.inA.trim()||S.inB.trim()))}
+/* 入力しながら、反対側の欄にリアルタイムで翻訳を表示する */
+function liveRun(dir){
+  clearTimeout(liveT);S.liveDir=dir;
+  const text=(dir==='A'?S.inA:S.inB).trim();
+  const oid=dir==='A'?'inB':'inA';
+  if(!text){
+    liveTok++;S.live=null;
+    if(dir==='A')S.inB='';else S.inA='';
+    const o=document.getElementById(oid);if(o){o.value='';fit(o)}
+    updLive();return;
+  }
+  liveT=setTimeout(async()=>{
+    const my=++liveTok,from=dir==='A'?S.src:S.dst,to=dir==='A'?S.dst:S.src;
+    try{
+      const t=await translate(text,from,to);if(my!==liveTok)return;
+      S.live={dir,from,to,s:text,t};
+      if(dir==='A')S.inB=t;else S.inA=t;
+      const o=document.getElementById(oid);if(o){o.value=t;fit(o)}
+      updLive();
+    }catch(e){}
+  },500);
+}
+function enterAnim(){const ss=document.querySelectorAll('.screen>.swipe');const l=ss[ss.length-1];if(l)l.classList.add('enter');const i=document.querySelector('.inp');if(i)i.classList.add('enter')}
+function scrollBottom(){requestAnimationFrame(()=>window.scrollTo({top:document.documentElement.scrollHeight,behavior:'smooth'}))}
+async function submit(dir){
+  dir=dir||S.liveDir||'A';
+  let text=(dir==='A'?S.inA:S.inB).trim();
+  if(!text){const o=dir==='A'?'B':'A';const ot=(o==='A'?S.inA:S.inB).trim();if(!ot)return;dir=o;text=ot}
   const from=dir==='A'?S.src:S.dst,to=dir==='A'?S.dst:S.src;
-  const my=++tok;
-  S.res={id:null,from,to,s:text,t:'',loading:true};
-  if(!keep){S.inA='';S.inB=''}
-  render();
-  try{
-    const t=await translate(text,from,to);if(my!==tok)return;
-    const it=mk(from,to,text,t);S.res=it;
-    D.hist=[it].concat(D.hist.filter(x=>x.id!==it.id)).slice(0,100);save();render();
+  const my=++tok;liveTok++;clearTimeout(liveT);
+  let t=(S.live&&S.live.dir===dir&&S.live.s===text&&S.live.from===from&&S.live.to===to&&S.live.t)?S.live.t:null;
+  S.inA='';S.inB='';S.live=null;
+  if(t!=null){
+    const it=mk(from,to,text,t);
+    S.list.push(it);D.hist=[it].concat(D.hist.filter(x=>x.id!==it.id)).slice(0,100);save();
+    render();enterAnim();scrollBottom();
     if(D.set.speak)speak(t,L[to].tts);
-  }catch(e){if(my!==tok)return;S.res=D.hist[0]||null;toast(errMsg(e));render()}
+    return;
+  }
+  const ph={id:'p'+my,from,to,s:text,t:'',loading:true};
+  S.list.push(ph);render();enterAnim();scrollBottom();
+  try{
+    if(t==null)t=await translate(text,from,to);
+    const it=mk(from,to,text,t);
+    const k=S.list.indexOf(ph);if(k>=0)S.list[k]=it;
+    D.hist=[it].concat(D.hist.filter(x=>x.id!==it.id)).slice(0,100);save();render();scrollBottom();
+    if(D.set.speak)speak(t,L[to].tts);
+  }catch(e){
+    const k=S.list.indexOf(ph);if(k>=0)S.list.splice(k,1);
+    if(dir==='A')S.inA=text;else S.inB=text;
+    toast(errMsg(e));render();
+  }
 }
 
 /* ---------- 画面: カメラ ---------- */
@@ -1170,9 +1241,12 @@ function sheetHTML(){
     const groups={};D.favs.forEach(f=>{(groups[f.from+'|'+f.to]=groups[f.from+'|'+f.to]||[]).push(f)});
     let b='';
     const keys=Object.keys(groups);
-    if(!keys.length)b+=`<section class="card"><p class="empty">よく使う項目はまだありません。翻訳結果の☆をタップすると追加されます。</p></section>`;
-    keys.forEach(k=>{const [f,t]=k.split('|');b+=`<h3>${esc(L[f].name)} - ${esc(L[t].name)}</h3>`+groups[k].map(i=>cardHTML(i)).join('')});
-    b+=`<h3 style="margin-top:22px">履歴</h3>`+(D.hist.length?D.hist.map(i=>cardHTML(i)).join(''):`<section class="card"><p class="empty">履歴はありません</p></section>`);
+    if(!keys.length&&!D.hist.length){
+      b=`<div class="emptyfav"><div class="big">${ic('star',64)}</div><b>よく使う項目なし</b><p>よく使う翻訳がここに表示されます。</p></div>`;
+    }else{
+      keys.forEach(k=>{const [f,t]=k.split('|');b+=`<h3>${esc(L[f].name)} - ${esc(L[t].name)}</h3>`+groups[k].map(i=>swipeHTML(cardHTML(i),{attrs:`data-act="fav" data-id="${esc(i.id)}"`,label:'よく使う項目から削除',icon:'starF'})).join('')});
+      if(D.hist.length)b+=`<h3 style="margin-top:22px">履歴</h3>`+D.hist.map(i=>swipeHTML(cardHTML(i),{attrs:`data-act="del-hist" data-id="${esc(i.id)}"`,label:'削除',icon:'trash'})).join('');
+    }
     return `<div class="sheet" data-act="scrim"><div class="panel" role="dialog" aria-label="よく使う項目">${ptop()}<h2>よく使う項目</h2>${b}</div></div>`;
   }
   if(s.type==='expand'){
@@ -1250,12 +1324,19 @@ function renderLayer(){
 }
 function fit(el){el.style.height='auto';el.style.height=Math.max(el.scrollHeight,el.classList.contains('sm')?40:112)+'px'}
 function fitAll(){document.querySelectorAll('.ta.auto').forEach(fit)}
-function closeSheet(){S.sheet=null;S.menu=null;S.dict=null;renderLayer();render()}
+function ghostSheet(){
+  const sh=document.querySelector('#layer .sheet');
+  if(sh){const g=sh.cloneNode(true);g.classList.add('ghost');g.removeAttribute('data-act');document.body.appendChild(g);setTimeout(()=>g.remove(),300)}
+}
+function closeSheet(){
+  ghostSheet();
+  S.sheet=null;S.menu=null;S.dict=null;renderLayer();render()
+}
 
 /* ---------- メニュー ---------- */
 function openMenu(kind){
   const M={
-   tr:{items:[{label:ME?'アカウント':'ログイン',act:'acct'},{sep:1},{label:'自動翻訳',act:'t-auto',check:D.set.auto},{label:'翻訳を自動で読み上げ',act:'t-speak',check:D.set.speak},{sep:1},{label:'履歴を消去',act:'clr-hist-ask',danger:1}]},
+   tr:{items:[{label:ME?'アカウント':'ログイン',act:'acct'},{sep:1},{label:'翻訳を自動で読み上げ',act:'t-speak',check:D.set.speak},{sep:1},{label:'履歴を消去',act:'clr-hist-ask',danger:1}]},
    cam:{items:[{label:'翻訳先を変更',act:'pick-dst'},{label:'結果を消去',act:'cam-clear'}]},
    view:{left:1,items:[{label:'横並び',act:'face-0',check:!S.face},{label:'対面',act:'face-1',check:S.face}]},
    chat:{items:[{label:'翻訳を自動で読み上げ',act:'t-speak',check:D.set.speak},{sep:1},{label:'会話を消去',act:'chat-clear',danger:1}]},
@@ -1293,8 +1374,8 @@ document.addEventListener('keydown',e=>{
 document.addEventListener('input',e=>{
   const el=e.target,id=el.id;
   if(el.classList.contains('auto'))fit(el);
-  if(id==='inA'){S.inA=el.value;clearTimeout(autoT);if(D.set.auto&&el.value.trim())autoT=setTimeout(()=>submit('A',true),1100)}
-  else if(id==='inB'){S.inB=el.value}
+  if(id==='inA'){S.inA=el.value;liveRun('A')}
+  else if(id==='inB'){S.inB=el.value;liveRun('B')}
   else if(id==='chA')S.chA=el.value;else if(id==='chB')S.chB=el.value;
   else if(id==='spell'){if(S.quiz)S.quiz.spell=el.value}
   else if(id==='cIn'){S.ai.ch.in=el.value;el.style.height='auto';el.style.height=Math.min(el.scrollHeight,120)+'px'}
@@ -1307,9 +1388,63 @@ document.addEventListener('change',e=>{
   if(e.target.id==='aImg'||e.target.id==='aFile'){const fs=[...(e.target.files||[])];const img=e.target.id==='aImg';e.target.value='';aiAddFiles(fs,img);return}
   if(e.target.id==='camIn'||e.target.id==='libIn'){const f=e.target.files&&e.target.files[0];e.target.value='';onPhoto(f)}
 });
-document.addEventListener('focusin',e=>{if(e.target.id==='chA')lastSide='A';if(e.target.id==='chB')lastSide='B'});
+document.addEventListener('focusin',e=>{if(e.target.id==='chA')lastSide='A';if(e.target.id==='chB')lastSide='B';if(e.target.id==='inA'||e.target.id==='inB')document.body.classList.add('editing')});
+document.addEventListener('focusout',e=>{if(e.target.id==='inA'||e.target.id==='inB')setTimeout(()=>{const a=document.activeElement;if(!(a&&(a.id==='inA'||a.id==='inB')))document.body.classList.remove('editing')},150)});
+document.addEventListener('mousedown',e=>{if(e.target.closest('.okb,.nextb'))e.preventDefault()});
+window.addEventListener('scroll',()=>document.body.classList.toggle('scrolled',window.scrollY>56),{passive:true});
+/* 左スワイプで削除ボタンを出す */
+let sw=null,swMoved=0;
+function swClose(except){document.querySelectorAll('.swipe.open').forEach(w=>{if(w!==except){w.classList.remove('open');const c=w.querySelector('.swc');if(c)c.style.transform=''}})}
+document.addEventListener('click',e=>{if(Date.now()-swMoved<350){e.stopPropagation();e.preventDefault()}},true);
+document.addEventListener('pointerdown',e=>{
+  const c=e.target.closest('.swc');
+  if(!c){if(!e.target.closest('.swdel'))swClose();return}
+  const w=c.parentElement;swClose(w);
+  const open=w.classList.contains('open');
+  sw={c,w,x:e.clientX,y:e.clientY,id:e.pointerId,base:open?-SWW:0,moved:false,x2:open?-SWW:0};
+});
+document.addEventListener('pointermove',e=>{
+  if(!sw||e.pointerId!==sw.id)return;
+  const dx=e.clientX-sw.x,dy=e.clientY-sw.y;
+  if(!sw.moved){if(Math.abs(dx)<10||Math.abs(dx)<Math.abs(dy)*1.2)return;sw.moved=true;document.body.style.userSelect='none';sw.c.style.transition='none';try{sw.c.setPointerCapture(e.pointerId)}catch(_){}}
+  sw.x2=Math.min(0,Math.max(-sw.w.offsetWidth,sw.base+dx));
+  sw.c.style.transform=`translateX(${sw.x2}px)`;swBtn(sw.w,sw.x2);
+});
+const swEnd=e=>{
+  if(!sw||(e&&e.pointerId!==sw.id))return;
+  const s=sw;sw=null;document.body.style.userSelect='';if(!s.moved)return;
+  swMoved=Date.now();s.c.style.transition='';
+  const btn=s.w.querySelector('.swdel');
+  if(btn&&s.x2<-s.w.offsetWidth*.55){act(btn.dataset.act,btn);return}
+  const open=s.x2<-SWW/2;
+  s.w.classList.toggle('open',open);s.c.style.transform=open?`translateX(${-SWW}px)`:'';
+  swBtn(s.w,open?-SWW:0,true);
+};
+/* 赤いボタンは、引っ張った量に合わせて細長くのびる */
+function swBtn(w,x,settle){
+  const b=w.querySelector('.swdel');if(!b)return;const p=-x;
+  if(settle){b.style.transition='width .24s cubic-bezier(.2,.9,.3,1.2),height .24s cubic-bezier(.2,.9,.3,1.2)';b.style.width='';b.style.height='';b.style.opacity=p>8?'1':'0';return}
+  b.style.transition='none';b.style.opacity=p>4?'1':'0';
+  const h=Math.min(64,Math.max(14,p*.7));b.style.height=h+'px';b.style.width=Math.max(h,p-14)+'px';
+}
+/* 削除:カードが左に流れ、赤いボタンがのびて、行がたたまれる */
+function swKill(btn,run){
+  const w=btn.closest('.swipe');if(!w){run();return}
+  const c=w.querySelector('.swc'),W=w.offsetWidth;
+  c.style.transition='transform .26s cubic-bezier(.4,0,.2,1)';c.style.transform=`translateX(${-W}px)`;
+  btn.style.transition='width .26s ease,height .26s ease,opacity .1s';btn.style.opacity='1';btn.style.width=(W-8)+'px';btn.style.height='64px';
+  setTimeout(()=>{
+    const h=w.offsetHeight;w.style.height=h+'px';w.style.overflow='hidden';
+    w.style.transition='height .3s ease,opacity .28s ease,margin-bottom .3s ease';
+    void w.offsetHeight;
+    w.style.height='0px';w.style.opacity='0';w.style.marginBottom='-18px';
+    setTimeout(run,300);
+  },230);
+}
+document.addEventListener('pointerup',swEnd);document.addEventListener('pointercancel',swEnd);
 
 function act(a,t){
+  if(t&&t.classList&&t.classList.contains('swdel')&&!t.dataset.go){t.dataset.go='1';swKill(t,()=>act(a,t));return}
   const ds=(t&&t.dataset)||{};const id=ds.id;
   const it=id?findItem(id):null;
   switch(a){
@@ -1325,10 +1460,9 @@ function act(a,t){
    case 'logout':window.FB.logout().then(()=>{S.sheet=null;toast('ログアウトしました');render()});break;
    case 'close':case 'scrim':closeSheet();break;
    case 'menu-tr':openMenu('tr');break;case 'menu-cam':openMenu('cam');break;case 'menu-view':openMenu('view');break;case 'menu-chat':openMenu('chat');break;case 'menu-deck':openMenu('deck');break;
-   case 't-auto':D.set.auto=!D.set.auto;save();S.menu=null;renderLayer();toast(D.set.auto?'自動翻訳をオンにしました':'自動翻訳をオフにしました');break;
    case 't-speak':D.set.speak=!D.set.speak;save();S.menu=null;renderLayer();toast(D.set.speak?'翻訳を自動で読み上げます':'自動読み上げをオフにしました');break;
    case 'clr-hist-ask':S.menu=null;S.sheet={type:'confirm',msg:'履歴をすべて消去しますか?',label:'履歴を消去',go:'clr-hist'};renderLayer();break;
-   case 'clr-hist':D.hist=[];save();S.res=null;S.sheet=null;render();toast('履歴を消去しました');break;
+   case 'clr-hist':D.hist=[];S.list=[];save();S.sheet=null;render();toast('履歴を消去しました');break;
    case 'cam-clear':S.cam=null;S.menu=null;render();break;
    case 'face-0':case 'face-1':S.face=a==='face-1';S.menu=null;render();break;
    case 'chat-clear':S.msgs=[];S.menu=null;render();break;
@@ -1340,8 +1474,12 @@ function act(a,t){
      if(sl==='wl'){S.form.l=c;S.sheet=S.sheet.back;renderLayer();break}
      if(sl==='src'){if(c===S.dst){S.dst=S.src}S.src=c}else{if(c===S.src){S.src=S.dst}S.dst=c}
      D.src=S.src;D.dst=S.dst;save();S.sheet=null;render();break}
-   case 'swap':{const x=S.src;S.src=S.dst;S.dst=x;const y=S.inA;S.inA=S.inB;S.inB=y;D.src=S.src;D.dst=S.dst;save();render();break}
+   case 'swap':{liveTok++;clearTimeout(liveT);S.live=null;const x=S.src;S.src=S.dst;S.dst=x;const y=S.inA;S.inA=S.inB;S.inB=y;D.src=S.src;D.dst=S.dst;save();render();break}
    case 'mic-A':mic(S.src,tx=>{S.inA=tx;render();submit('A')});break;
+   case 'commit':submit();break;
+   case 'ok':{const a=document.activeElement;if(a&&a.blur)a.blur();document.body.classList.remove('editing');if(S.inA.trim()||S.inB.trim())submit();break}
+   case 'del-item':{const i=+ds.i,x=S.list[i];if(x){S.list.splice(i,1);if(!S.list.some(y=>y.id===x.id))D.hist=D.hist.filter(h=>h.id!==x.id);save();render()}break}
+   case 'del-hist':{D.hist=D.hist.filter(h=>h.id!==id);S.list=S.list.filter(y=>y.id!==id);save();{const pn=document.querySelector('.panel'),sc=pn?pn.scrollTop:0;renderLayer();const p2=document.querySelector('.panel');if(p2)p2.scrollTop=sc}render();break}
    case 'mic-B':mic(S.dst,tx=>{S.inB=tx;render();submit('B')});break;
    case 'mic-chat':mic(lastSide==='A'?S.src:S.dst,tx=>sendChat(lastSide,tx));break;
    case 'say-s':if(it)speak(it.s,L[it.from].tts);break;
@@ -1433,7 +1571,7 @@ function act(a,t){
 }
 /* 画面の再描画時に拡大表示から戻るためのフック */
 const _closeSheet=closeSheet;
-closeSheet=function(){const b=S.sheet&&S.sheet.back;S.menu=null;S.dict=null;S.sheet=b||null;renderLayer();render()};
+closeSheet=function(){const b=S.sheet&&S.sheet.back;if(!b)ghostSheet();S.menu=null;S.dict=null;S.sheet=b||null;renderLayer();render()};
 
 async function authRun(fn){
   const A=S.auth;A.busy=true;A.err='';A.info='';renderLayer();
