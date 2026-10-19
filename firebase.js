@@ -54,8 +54,9 @@ else try {
       return parse(r.response.text());
     },
     // 画像・PDF・テキスト・URL から単語帳や問題を作る汎用呼び出し。parts は文字列か Blob の配列。
-    async generate(parts, { url = false } = {}) {
+    async generate(parts, { url = false, max = 0 } = {}) {
       const cfg = { temperature: 0.5 };
+      if (max) cfg.maxOutputTokens = max;
       if (!url) cfg.responseMimeType = 'application/json';
       const m = I.getGenerativeModel(ai, {
         model: GEMINI_MODEL, generationConfig: cfg,
@@ -79,6 +80,22 @@ else try {
       const t = r.response.text();
       return talk ? parse(t) : t.trim();
     },
+    // ---- 先生からの配信(プリント教材) ----
+    // 先生かどうか: Firestore の teachers/{メールアドレス} という文書があれば先生。
+    async isTeacher() {
+      try { const em = (auth.currentUser.email || '').toLowerCase(); if (!em) return false; return (await F.getDoc(F.doc(db, 'teachers', em))).exists(); }
+      catch (e) { return false; }
+    },
+    async deliveries() {
+      const s = await F.getDocs(F.query(F.collection(db, 'deliveries'), F.orderBy('created', 'desc'), F.limit(60)));
+      return s.docs.map(d => ({ id: d.id, ...d.data() }));
+    },
+    async publish(doc) {
+      const u = auth.currentUser;
+      const r = await F.addDoc(F.collection(db, 'deliveries'), { ...doc, created: Date.now(), by: u.displayName || u.email || '', byUid: u.uid });
+      return r.id;
+    },
+    async unpublish(id) { await F.deleteDoc(F.doc(db, 'deliveries', id)); },
     async photo(blob, from, to) {
       const m = sys(`あなたは画像内の文字を読み取って翻訳するエンジンです。JSONだけを出力します。${SAFE}`, true);
       const r = await m.generateContent([{ text: `画像に写っている文字を読む順にまとまり(看板・段落)ごとに読み取り、「${to}」に翻訳してください。「${to}」の文字は「${from}」に翻訳します。文字が無ければ空配列。最大12件。形式: {"blocks":[{"s":"原文","t":"翻訳","from":"原文の言語名"}]}` }, { inlineData: { mimeType: 'image/jpeg', data: await b64(blob) } }]);
