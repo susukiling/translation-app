@@ -154,6 +154,36 @@ svg .f{fill:currentColor;stroke:none}
 .tab[aria-current="true"]{color:var(--acc);--glyph:var(--tab-on)}
 .tab svg text{fill:var(--glyph);stroke:none;font-family:var(--font);font-weight:700}
 .tab svg .g{stroke:var(--glyph)}
+.li[hidden]{display:none}
+.searchw{margin:2px 4px 0}
+.searchw input{width:100%;border:0;border-radius:22px;background:var(--card);color:var(--fg);padding:13px 18px;font:inherit;font-size:17px;outline:none}
+.searchw input::placeholder{color:var(--sub)}
+/* カメラ */
+body.camtab{background:#121212;--bg:#121212;--card:#1c1c1e;--card2:#2c2c2e;--sheet:#1c1c1e;--sheetcard:#2c2c2e;--fg:#ffffff;--sub:#98989f;--sep:rgba(84,84,88,.55);
+  --acc:#00d1e8;--acc-ink:#00262b;--acc-soft:rgba(0,209,232,.16);--btn:rgba(44,44,46,.88);--ph:#48484a;--ph-acc:rgba(0,209,232,.28);
+  --tab:rgba(28,28,30,.88);--tab-on:#0a0a0b;--play:#ffffff;--play-ink:#000000;color-scheme:dark}
+body.camtab .screen{gap:0;padding-bottom:140px}
+.camscr{display:flex;flex-direction:column}
+.camview{position:relative;aspect-ratio:3/4;background:#000;overflow:hidden;margin:56px -16px 0}
+.camview img,.camslot video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.camslot{position:absolute;inset:0}
+.camph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:30px;color:#fff}
+.camph b{font-size:20px}.camph p{margin:0;font-size:14px;color:rgba(255,255,255,.65);line-height:1.5}
+.camph button{margin-top:6px;border:0;border-radius:22px;padding:10px 22px;background:var(--acc);color:var(--acc-ink);font-weight:700;font-size:16px}
+.langpill{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);display:flex;align-items:center;gap:14px;padding:8px 16px;border-radius:26px;
+  background:rgba(70,70,74,.5);-webkit-backdrop-filter:blur(20px) saturate(1.5);backdrop-filter:blur(20px) saturate(1.5);box-shadow:inset 0 0 0 1px rgba(255,255,255,.22);color:#fff;font-size:15px;font-weight:600;white-space:nowrap;z-index:2}
+.langpill button{background:none;border:0;color:#fff;display:inline-flex;align-items:center;gap:3px;padding:2px 0;font:inherit}
+.langpill button svg{color:rgba(255,255,255,.6)}
+.langpill .arw{color:rgba(255,255,255,.7);padding:2px 4px}
+.camx{position:absolute;top:14px;left:14px;z-index:3;background:rgba(40,40,44,.6);color:#fff}
+.camctl{display:flex;align-items:center;justify-content:space-between;padding:26px 30px 0}
+.cb2{width:52px;height:52px;border-radius:50%;border:0;background:rgba(255,255,255,.13);color:#fff;display:grid;place-items:center;transition:transform .14s,background-color .2s}
+.cb2:active{transform:scale(.92);background:rgba(255,255,255,.24)}
+.cb2.on{background:#ffd60a;color:#000}
+.shut2{width:70px;height:70px;border-radius:50%;border:0;background:rgba(255,255,255,.13);display:grid;place-items:center;transition:transform .14s}
+.shut2 i{width:32px;height:32px;border-radius:50%;border:3px solid #fff;display:block;transition:transform .14s}
+.shut2:active i{transform:scale(.8)}
+.camres{display:flex;flex-direction:column;gap:14px;margin-top:16px}
 /* sheets */
 .sheet{position:fixed;inset:0;z-index:40;background:var(--scrim);display:flex;justify-content:center;align-items:flex-end;animation:fade .2s ease-out}
 .panel{--card:var(--sheetcard);width:100%;max-width:520px;height:calc(100% - env(safe-area-inset-top,0px) - 44px);background:var(--sheet);border-radius:40px 40px 0 0;
@@ -344,7 +374,7 @@ const LANGS=[['ja','日本語','ja-JP','テキストを入力'],['en-US','英語
 ['es','スペイン語','es-ES','Introducir texto'],['fr','フランス語','fr-FR','Saisir le texte'],['de','ドイツ語','de-DE','Text eingeben'],
 ['it','イタリア語','it-IT','Inserisci testo'],['pt-BR','ポルトガル語 (ブラジル)','pt-BR','Inserir texto'],['ru','ロシア語','ru-RU','Введите текст'],
 ['ar','アラビア語','ar-SA','أدخل النص'],['th','タイ語','th-TH','ป้อนข้อความ'],['vi','ベトナム語','vi-VN','Nhập văn bản'],['id','インドネシア語','id-ID','Masukkan teks'],
-['tr','トルコ語','tr-TR','Metin girin'],['nl','オランダ語','nl-NL','Tekst invoeren'],['pl','ポーランド語','pl-PL','Wpisz tekst'],['hi','ヒンディー語','hi-IN','टेक्स्ट दर्ज करें'],['uk','ウクライナ語','uk-UA','Введіть текст']];
+['tr','トルコ語','tr-TR','Metin girin'],['nl','オランダ語','nl-NL','Tekst invoeren'],['pl','ポーランド語','pl-PL','Wpisz tekst'],['hi','ヒンディー語','hi-IN','टेक्स्ट दर्ज करें'],['uk','ウクライナ語','uk-UA','Введіть текст'],['en-AU','英語 (オーストラリア)','en-AU','Enter text'],['en-CA','英語 (カナダ)','en-CA','Enter text'],['es-MX','スペイン語 (メキシコ)','es-MX','Introducir texto'],['fr-CA','フランス語 (カナダ)','fr-CA','Saisir le texte'],['pt-PT','ポルトガル語 (ポルトガル)','pt-PT','Inserir texto'],['yue','中国語 (広東語)','zh-HK','輸入文字'],['fil','フィリピン語','fil-PH','Magpasok ng text'],['ms','マレー語','ms-MY','Masukkan teks'],['bn','ベンガル語','bn-BD','পাঠ্য লিখুন'],['ta','タミル語','ta-IN','உரையை உள்ளிடவும்'],['te','テルグ語','te-IN','వచనాన్ని నమోదు చేయండి'],['mr','マラーティー語','mr-IN','मजकूर प्रविष्ट करा'],['gu','グジャラート語','gu-IN','ટેક્સ્ટ દાખલ કરો'],['kn','カンナダ語','kn-IN','ಪಠ್ಯವನ್ನು ನಮೂದಿಸಿ'],['ml','マラヤーラム語','ml-IN','വാചകം നൽകുക'],['pa','パンジャーブ語','pa-IN','ਟੈਕਸਟ ਦਰਜ ਕਰੋ'],['ur','ウルドゥー語','ur-PK','متن درج کریں'],['ne','ネパール語','ne-NP','पाठ प्रविष्ट गर्नुहोस्'],['si','シンハラ語','si-LK','පෙළ ඇතුළත් කරන්න'],['my','ミャンマー語','my-MM','စာသားထည့်ပါ'],['km','クメール語','km-KH','បញ្ចូលអត្ថបទ'],['lo','ラオ語','lo-LA','ໃສ່ຂໍ້ຄວາມ'],['mn','モンゴル語','mn-MN','Текст оруулах'],['fa','ペルシア語','fa-IR','متن را وارد کنید'],['he','ヘブライ語','he-IL','הזן טקסט'],['el','ギリシャ語','el-GR','Εισαγάγετε κείμενο'],['sv','スウェーデン語','sv-SE','Ange text'],['da','デンマーク語','da-DK','Indtast tekst'],['no','ノルウェー語','nb-NO','Skriv inn tekst'],['fi','フィンランド語','fi-FI','Syötä teksti'],['is','アイスランド語','is-IS','Sláðu inn texta'],['cs','チェコ語','cs-CZ','Zadejte text'],['sk','スロバキア語','sk-SK','Zadajte text'],['hu','ハンガリー語','hu-HU','Adjon meg szöveget'],['ro','ルーマニア語','ro-RO','Introduceți textul'],['bg','ブルガリア語','bg-BG','Въведете текст'],['hr','クロアチア語','hr-HR','Unesite tekst'],['sr','セルビア語','sr-RS','Унесите текст'],['sl','スロベニア語','sl-SI','Vnesite besedilo'],['bs','ボスニア語','bs-BA','Unesite tekst'],['mk','マケドニア語','mk-MK','Внесете текст'],['sq','アルバニア語','sq-AL','Futni tekstin'],['lt','リトアニア語','lt-LT','Įveskite tekstą'],['lv','ラトビア語','lv-LV','Ievadiet tekstu'],['et','エストニア語','et-EE','Sisestage tekst'],['ca','カタルーニャ語','ca-ES','Introdueix text'],['eu','バスク語','eu-ES','Sartu testua'],['gl','ガリシア語','gl-ES','Introduce texto'],['ga','アイルランド語','ga-IE','Cuir isteach téacs'],['cy','ウェールズ語','cy-GB','Rhowch destun'],['mt','マルタ語','mt-MT','Daħħal test'],['ka','ジョージア語','ka-GE','შეიყვანეთ ტექსტი'],['hy','アルメニア語','hy-AM','Մուտքագրեք տեքստ'],['az','アゼルバイジャン語','az-AZ','Mətn daxil edin'],['kk','カザフ語','kk-KZ','Мәтінді енгізіңіз'],['uz','ウズベク語','uz-UZ','Matn kiriting'],['sw','スワヒリ語','sw-KE','Weka maandishi'],['af','アフリカーンス語','af-ZA','Voer teks in']];
 const L=Object.fromEntries(LANGS.map(l=>[l[0],{name:l[1],tts:l[2],ph:l[3]}]));
 
 /* ---------- 内蔵単語 ---------- */
@@ -542,7 +572,7 @@ function chunks(text,max){
   if(cur)out.push(cur);return out;
 }
 async function mm(q,from,to){
-  const u='https://api.mymemory.translated.net/get?q='+encodeURIComponent(q)+'&langpair='+encodeURIComponent(from+'|'+to)+(CONFIG.email?'&de='+encodeURIComponent(CONFIG.email):'');
+  const u='https://api.mymemory.translated.net/get?q='+encodeURIComponent(q)+'&langpair='+encodeURIComponent((MMC[from]||from)+'|'+(MMC[to]||to))+(CONFIG.email?'&de='+encodeURIComponent(CONFIG.email):'');
   const r=await fetch(u);if(!r.ok)throw{code:'upstream'};
   const j=await r.json();
   if(j.responseStatus===429||/QUOTA|LIMIT/i.test(String(j.responseDetails||'')))throw{code:'quota'};
@@ -572,7 +602,9 @@ async function dictLookup(term,from,to){
   return {entries:ent};
 }
 /* 写真の文字認識: Tesseract.js (ブラウザ内で動作) */
-const TESS={ja:'jpn','en-US':'eng','en-GB':'eng','zh-CN':'chi_sim','zh-TW':'chi_tra',ko:'kor',es:'spa',fr:'fra',de:'deu',it:'ita','pt-BR':'por',ru:'rus',ar:'ara',th:'tha',vi:'vie',id:'ind',tr:'tur',nl:'nld',pl:'pol',hi:'hin',uk:'ukr'};
+const TESS={ja:'jpn','en-US':'eng','en-GB':'eng','en-AU':'eng','en-CA':'eng','zh-CN':'chi_sim','zh-TW':'chi_tra',yue:'chi_tra',ko:'kor',es:'spa','es-MX':'spa',fr:'fra','fr-CA':'fra',de:'deu',it:'ita','pt-BR':'por','pt-PT':'por',ru:'rus',ar:'ara',th:'tha',vi:'vie',id:'ind',tr:'tur',nl:'nld',pl:'pol',hi:'hin',uk:'ukr',
+ fil:'fil',ms:'msa',bn:'ben',ta:'tam',te:'tel',mr:'mar',gu:'guj',kn:'kan',ml:'mal',pa:'pan',ur:'urd',ne:'nep',si:'sin',my:'mya',km:'khm',lo:'lao',mn:'mon',fa:'fas',he:'heb',el:'ell',sv:'swe',da:'dan',no:'nor',fi:'fin',is:'isl',cs:'ces',sk:'slk',hu:'hun',ro:'ron',bg:'bul',hr:'hrv',sr:'srp',sl:'slv',bs:'bos',mk:'mkd',sq:'sqi',lt:'lit',lv:'lav',et:'est',ca:'cat',eu:'eus',gl:'glg',ga:'gle',cy:'cym',mt:'mlt',ka:'kat',hy:'hye',az:'aze',kk:'kaz',uz:'uzb',sw:'swa',af:'afr'};
+const MMC={yue:'zh-TW','es-MX':'es','fr-CA':'fr','pt-PT':'pt','en-AU':'en-GB','en-CA':'en-US',fil:'tl',no:'nb'};
 let tessP=null;
 function loadTess(){
   if(window.Tesseract)return Promise.resolve();
@@ -694,6 +726,7 @@ const IC={
  photo:'<rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.6"/><path d="M4 18l5-5 4 4 3-3 4 4"/>',
  user:'<circle cx="12" cy="8.5" r="4"/><path d="M4 20.5c.6-4 3.8-6 8-6s7.4 2 8 6"/>',
  send:'<path d="M12 19V5M5.5 11.5L12 5l6.5 6.5" stroke-width="2.6"/>',
+ torch:'<path d="M9 3h6v3.4L13.6 9v10.5a1.6 1.6 0 0 1-3.2 0V9L9 6.4z"/><path d="M12 12.2v2.3" stroke-width="2.4"/>',
  tAi:'<path class="f" d="M12 1.6c.7 5.6 4.8 9.7 10.4 10.4-5.6.7-9.7 4.8-10.4 10.4C11.3 16.8 7.2 12.7 1.6 12 7.2 11.3 11.3 7.2 12 1.6z"/><path class="f" d="M19.6 1.2c.25 1.9 1.6 3.3 3.5 3.5-1.9.25-3.3 1.6-3.5 3.5-.25-1.9-1.6-3.3-3.5-3.5 1.9-.25 3.3-1.6 3.5-3.5z" transform="translate(-1 0) scale(.9)"/>',
  link:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
  doc:'<path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/>',
@@ -803,19 +836,73 @@ async function submit(dir){
 }
 
 /* ---------- 画面: カメラ ---------- */
+let camStream=null,camVideo=null,camErr='',camBusy=false,camTorch=false;
+async function camStart(){
+  if(camStream||camBusy||S.tab!=='camera'||S.cam||camErr)return;
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){camErr='unsupported';render();return}
+  camBusy=true;
+  try{
+    const st=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1440}},audio:false});
+    if(S.tab!=='camera'||S.cam){st.getTracks().forEach(t=>t.stop());camBusy=false;return}
+    camStream=st;camErr='';
+    if(!camVideo){camVideo=document.createElement('video');camVideo.setAttribute('playsinline','');camVideo.muted=true;camVideo.autoplay=true}
+    camVideo.srcObject=st;
+    try{await camVideo.play()}catch(e){}
+    camBusy=false;render();
+  }catch(e){camBusy=false;camErr=(e&&e.name)||'error';render()}
+}
+function camStop(){
+  if(camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null}
+  if(camVideo)camVideo.srcObject=null;
+  camTorch=false;
+}
+document.addEventListener('visibilitychange',()=>{if(document.hidden)camStop();else if(S.tab==='camera'&&!S.cam)camStart()});
+function camSync(){
+  document.body.classList.toggle('camtab',S.tab==='camera');
+  if(S.tab!=='camera'||S.cam){camStop();if(S.tab!=='camera')camErr='';return}
+  const slot=document.getElementById('camslot');
+  if(slot&&camVideo&&camStream)slot.appendChild(camVideo);
+  else if(!camStream)camStart();
+}
+function shootNow(){
+  if(camStream&&camVideo&&camVideo.videoWidth){
+    const cv=document.createElement('canvas');cv.width=camVideo.videoWidth;cv.height=camVideo.videoHeight;
+    cv.getContext('2d').drawImage(camVideo,0,0);
+    cv.toBlob(bl=>{if(bl){camStop();onPhoto(new File([bl],'shot.jpg',{type:'image/jpeg'}))}},'image/jpeg',.92);
+  }else{const el=$('#camIn');if(el)el.click()}
+}
+async function torchToggle(){
+  try{
+    const tr=camStream&&camStream.getVideoTracks()[0];
+    const caps=tr&&tr.getCapabilities?tr.getCapabilities():{};
+    if(!caps||!caps.torch){toast('この端末ではライトを使えません');return}
+    camTorch=!camTorch;await tr.applyConstraints({advanced:[{torch:camTorch}]});
+    const b=document.getElementById('torchb');if(b)b.classList.toggle('on',camTorch);
+  }catch(e){camTorch=false;toast('ライトを切り替えられませんでした')}
+}
 function cameraHTML(){
   const c=S.cam;
-  let h=`<header class="top"><span class="grow"></span><h1>カメラ</h1>${gb('menu-cam',ic('more'),'メニュー')}</header>`;
-  h+=`<div class="camwrap"><div class="view">`;
-  if(c&&c.url)h+=`<img src="${c.url}" alt="選んだ写真">`;
-  else h+=`<span class="br a"></span><span class="br b"></span><span class="br c"></span><span class="br d"></span><div><div class="txt" style="font-size:22px">写真に写った文字を翻訳</div><p class="hint" style="margin-top:8px">撮影するか写真を選ぶと、${esc(L[S.src].name)}の文字を読み取って翻訳します</p></div>`;
-  h+=`</div>`;
-  if(c&&c.loading)h+=`<section class="card"><div class="lbl acc">${esc(L[S.dst].name)}</div><div class="txt acc"><span class="dots"><i></i><i></i><i></i></span></div><p class="hint" style="margin:10px 0 0;text-align:left">${esc(c.msg||'')}</p></section>`;
-  else if(c&&c.err)h+=`<section class="card"><div class="txt" style="font-size:20px">${esc(c.err)}</div></section>`;
-  else if(c&&c.blocks)h+=c.blocks.length?c.blocks.map(b=>cardHTML(b)).join(''):`<section class="card"><div class="txt" style="font-size:20px">文字が見つかりませんでした</div></section>`;
-  h+=`<div class="shutters">${gb('lib',ic('photo',26),'写真から選ぶ')}<button class="shut" data-act="shoot" aria-label="撮影"><i></i></button>${gb('swap',ic('swap',24),'言語を入れ替える')}</div>
-  <div style="display:flex;justify-content:center;gap:18px;align-items:center"><button class="chip" data-act="pick-src">${esc(L[S.src].name)}${ic('ud',14)}</button><span style="color:var(--sub)">→</span><button class="chip acc" data-act="pick-dst">${esc(L[S.dst].name)}${ic('ud',14)}</button></div></div>
-  <input type="file" id="camIn" accept="image/*" capture="environment" hidden><input type="file" id="libIn" accept="image/*" hidden>`;
+  let h=`<div class="camscr"><div class="camview">`;
+  if(c&&c.url)h+=`<img src="${c.url}" alt="撮影した写真"><button class="gbtn camx" data-act="cam-clear" aria-label="閉じる">${ic('x',22)}</button>`;
+  else{
+    h+=`<div id="camslot" class="camslot"></div>`;
+    if(!camStream){
+      if(camErr==='NotAllowedError'||camErr==='SecurityError')h+=`<div class="camph"><b>カメラを使えません</b><p>設定でカメラの使用を許可してください。<br>下の写真ボタンから、写真を選んで翻訳することもできます。</p><button data-act="cam-retry">もう一度</button></div>`;
+      else if(camErr)h+=`<div class="camph"><b>カメラを起動できません</b><p>この端末ではライブ映像を使えないようです。<br>シャッターボタンで撮影するか、写真を選んでください。</p><button data-act="cam-retry">もう一度</button></div>`;
+      else h+=`<div class="camph"><p>カメラを起動中…</p></div>`;
+    }
+  }
+  h+=`<div class="langpill"><button data-act="pick-src">${esc(L[S.src].name)}${ic('ud',14)}</button><button class="arw" data-act="swap" aria-label="言語を入れ替える">→</button><button data-act="pick-dst">${esc(L[S.dst].name)}${ic('ud',14)}</button></div></div>`;
+  if(c){
+    h+=`<div class="camres">`;
+    if(c.loading)h+=`<section class="card"><div class="lbl acc">${esc(L[S.dst].name)}</div><div class="txt acc"><span class="dots"><i></i><i></i><i></i></span></div><p class="hint" style="margin:10px 0 0;text-align:left">${esc(c.msg||'')}</p></section>`;
+    else if(c.err)h+=`<section class="card"><div class="txt" style="font-size:20px">${esc(c.err)}</div></section>`;
+    else if(c.blocks)h+=c.blocks.length?c.blocks.map(b=>cardHTML(b)).join(''):`<section class="card"><div class="txt" style="font-size:20px">文字が見つかりませんでした</div></section>`;
+    h+=`</div>`;
+  }else{
+    h+=`<div class="camctl"><button class="cb2" data-act="lib" aria-label="写真から選ぶ">${ic('photo',26)}</button><button class="shut2" data-act="shoot" aria-label="撮影"><i></i></button><button class="cb2${camTorch?' on':''}" id="torchb" data-act="torch" aria-label="ライト">${ic('torch',26)}</button></div>`;
+  }
+  h+=`</div><input type="file" id="camIn" accept="image/*" capture="environment" hidden><input type="file" id="libIn" accept="image/*" hidden>`;
   return h;
 }
 async function shrink(file){
@@ -1248,7 +1335,7 @@ function sheetHTML(){
   const s=S.sheet;
   if(s.type==='lang'){
     const cur=s.slot==='src'?S.src:s.slot==='dst'?S.dst:S.form.l;
-    return `<div class="sheet" data-act="scrim"><div class="panel" role="dialog" aria-label="言語を選択">${ptop()}<h2>言語</h2><section class="card list">${LANGS.map(l=>`<button class="li" data-act="setlang" data-code="${l[0]}"><span class="grow">${esc(l[1])}</span><span class="chk">${cur===l[0]?ic('check',22):''}</span></button>`).join('')}</section></div></div>`;
+    return `<div class="sheet" data-act="scrim"><div class="panel" role="dialog" aria-label="言語を選択">${ptop()}<h2>言語</h2><div class="searchw"><input id="langQ" type="search" placeholder="言語を検索" autocomplete="off" autocapitalize="off" spellcheck="false"></div><section class="card list">${LANGS.map(l=>`<button class="li" data-act="setlang" data-code="${l[0]}"><span class="grow">${esc(l[1])}</span><span class="chk">${cur===l[0]?ic('check',22):''}</span></button>`).join('')}</section></div></div>`;
   }
   if(s.type==='favs'){
     const groups={};D.favs.forEach(f=>{(groups[f.from+'|'+f.to]=groups[f.from+'|'+f.to]||[]).push(f)});
@@ -1334,6 +1421,7 @@ function render(){
   main.innerHTML=h;
   document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-current',String(b.dataset.id===S.tab)));
   updTabs(true);
+  camSync();
   renderLayer();fitAll();
   if(keep){const el=document.getElementById(keep);if(el&&!el.disabled){el.focus();try{if(pos!=null)el.setSelectionRange(pos,pos)}catch(e){}}}
 }
@@ -1412,6 +1500,7 @@ document.addEventListener('keydown',e=>{
 document.addEventListener('input',e=>{
   const el=e.target,id=el.id;
   if(el.classList.contains('auto'))fit(el);
+  if(id==='langQ'){const q=el.value.trim().toLowerCase();document.querySelectorAll('.panel .li[data-code]').forEach(b=>{b.hidden=!!q&&!b.textContent.toLowerCase().includes(q)&&!b.dataset.code.toLowerCase().includes(q)});return}
   if(id==='inA'){S.inA=el.value;liveRun('A')}
   else if(id==='inB'){S.inB=el.value;liveRun('B')}
   else if(id==='chA')S.chA=el.value;else if(id==='chB')S.chB=el.value;
@@ -1529,7 +1618,9 @@ function act(a,t){
    case 'dict':if(it)openDict(it);break;
    case 'dict-add':if(S.dict&&S.dict.item){addFromItem(S.dict.item)}break;
    case 'msg-say':{const m=S.msgs[+ds.i];if(m)speak(m.t,L[m.side==='A'?S.dst:S.src].tts);break}
-   case 'shoot':{const el=$('#camIn');if(el)el.click();break}
+   case 'shoot':shootNow();break;
+   case 'torch':torchToggle();break;
+   case 'cam-retry':camErr='';camStart();break;
    case 'lib':{const el=$('#libIn');if(el)el.click();break}
    /* 単語帳 */
    case 'back':S.deckOpen=null;render();break;
