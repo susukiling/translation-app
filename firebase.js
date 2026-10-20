@@ -96,6 +96,31 @@ else try {
       return r.id;
     },
     async unpublish(id) { await F.deleteDoc(F.doc(db, 'deliveries', id)); },
+    // ---- 学習状況の共有(生徒 → 先生) / 先生からのコメント ----
+    async shareActivity(obj) {
+      const u = auth.currentUser;
+      await F.setDoc(F.doc(db, 'activity', u.uid), { ...obj, uid: u.uid, name: u.displayName || (u.email || '').split('@')[0] || '名前なし', email: u.email || '', updated: Date.now() });
+    },
+    async unshareActivity() { try { await F.deleteDoc(F.doc(db, 'activity', auth.currentUser.uid)); } catch (e) {} },
+    async students() {
+      const s = await F.getDocs(F.query(F.collection(db, 'activity'), F.limit(500)));
+      return s.docs.map(d => ({ id: d.id, ...d.data() }));
+    },
+    async myComments() {
+      const s = await F.getDocs(F.query(F.collection(db, 'comments'), F.where('toUid', '==', auth.currentUser.uid), F.limit(50)));
+      return s.docs.map(d => ({ id: d.id, ...d.data() }));
+    },
+    async commentsFor(uid) {
+      const s = await F.getDocs(F.query(F.collection(db, 'comments'), F.where('toUid', '==', uid), F.limit(100)));
+      return s.docs.map(d => ({ id: d.id, ...d.data() }));
+    },
+    async sendComment(toUid, text) {
+      const u = auth.currentUser;
+      const doc = { toUid, text: String(text).slice(0, 500), by: u.displayName || u.email || '先生', byUid: u.uid, created: Date.now() };
+      const r = await F.addDoc(F.collection(db, 'comments'), doc);
+      return { id: r.id, ...doc };
+    },
+    async deleteComment(id) { await F.deleteDoc(F.doc(db, 'comments', id)); },
     async photo(blob, from, to) {
       const m = sys(`あなたは画像内の文字を読み取って翻訳するエンジンです。JSONだけを出力します。${SAFE}`, true);
       const r = await m.generateContent([{ text: `画像に写っている文字を読む順にまとまり(看板・段落)ごとに読み取り、「${to}」に翻訳してください。「${to}」の文字は「${from}」に翻訳します。文字が無ければ空配列。最大12件。形式: {"blocks":[{"s":"原文","t":"翻訳","from":"原文の言語名"}]}` }, { inlineData: { mimeType: 'image/jpeg', data: await b64(blob) } }]);
