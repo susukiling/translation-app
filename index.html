@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>翻訳</title>
+<title>翻訳と単語帳</title>
 <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -562,6 +562,7 @@ function bootAuth(){
 }
 if(window.FB!==undefined)setTimeout(bootAuth,0);else window.addEventListener('fb-ready',bootAuth,{once:true});
 const allDecks=()=>[BUILTIN,...D.decks];
+const aiDecks=()=>{const have=new Set(D.decks.map(d=>d.id));const v=(S.dv||[]).filter(x=>x&&x.id&&!have.has('dv-'+x.id)&&(x.words||[]).some(w=>w&&w.t)).map(x=>({id:'dv-'+x.id,name:x.title||'配信された教材',teacher:true,words:(x.words||[]).filter(w=>w&&w.t).map(w=>({t:String(w.t),m:String(w.m||''),l:'en-US',ex:w.ex,exj:w.exj,pos:w.pos}))}));return [...allDecks(),...v]};
 const myDeck=()=>D.decks[0];
 
 /* ---------- 翻訳エンジン ---------- */
@@ -1288,9 +1289,9 @@ async function aiChatSend(textIn){
 
 /* ----- 出題 ----- */
 function askHTML(){
-  const A=S.ai,dk=allDecks();
+  const A=S.ai,dk=aiDecks();
   let h=`<section class="card"><div class="lbl" style="margin-bottom:10px">出題する単語</div>${segB('ai-src',A.src,[['deck','単語帳から'],['free','おまかせ']])}`;
-  if(A.src==='deck')h+=`<div style="margin:6px -4px 0">${dk.map(d=>`<button class="li" data-act="ai-deck" data-id="${esc(d.id)}" style="padding:12px 4px"><div class="grow"><div class="t" style="font-size:18px">${esc(d.name)}</div><div class="s">${d.words.length}語</div></div><span class="chk">${A.dk===d.id?ic('check',22):''}</span></button>`).join('')}</div>`;
+  if(A.src==='deck')h+=`<div style="margin:6px -4px 0">${dk.map(d=>`<button class="li" data-act="ai-deck" data-id="${esc(d.id)}" style="padding:12px 4px"><div class="grow"><div class="t" style="font-size:18px">${d.teacher?'👩‍🏫 ':''}${esc(d.name)}</div><div class="s">${d.teacher?'先生の配信 · ':''}${d.words.length}語</div></div><span class="chk">${A.dk===d.id?ic('check',22):''}</span></button>`).join('')}</div>`;
   else h+=`<div class="field" style="margin-top:14px"><span class="lbl" style="color:var(--sub)">テーマ(空でもOK)</span><input id="aTopic" value="${esc(A.topic)}" placeholder="例: 旅行、環境問題、ビジネス" style="font-size:19px"></div>`;
   if(A.fmt==='irr')h+=`<div class="field" style="margin-top:14px"><span class="lbl" style="color:var(--sub)">不規則動詞の表を貼り付け(任意)</span><textarea id="aIrrT" rows="5" placeholder="プリントの表をそのまま貼り付け。入れると、上の選択より表の動詞を優先します" style="font-size:16px;width:100%">${esc(A.irrT||'')}</textarea></div>`;
   h+=`</section>
@@ -1314,7 +1315,7 @@ async function aiAskIrr(){
   const tbl=(A.irrT||'').trim().slice(0,6000);
   if(tbl){target='次の表(プリントの貼り付け)に載っている動詞だけを使ってください。表の活用形が正しければそのまま使い、足りない形や意味は補ってください。表にない動詞は使わない。表の動詞数が問題数より少ないときは、ある分だけ出題してください:\n'+tbl}
   else if(A.src==='deck'){
-    const d=allDecks().find(x=>x.id===A.dk)||BUILTIN;
+    const d=aiDecks().find(x=>x.id===A.dk)||BUILTIN;
     const pool=shuffle(d.words.filter(w=>w.l==='en-US')).slice(0,80);
     if(!pool.length){A.err='この単語帳には英単語がありません';return render()}
     target='次の単語の中から、不規則動詞だけを使ってください(不規則動詞でない語は使わない)。足りない分は、中学・高校で習う代表的な不規則動詞で補ってください: '+pool.map(w=>w.t).join(', ');
@@ -1358,7 +1359,7 @@ async function aiAsk(){
   const A=S.ai;if(A.busy)return;A.err='';
   const n=+A.ac;let target;
   if(A.src==='deck'){
-    const d=allDecks().find(x=>x.id===A.dk)||BUILTIN;
+    const d=aiDecks().find(x=>x.id===A.dk)||BUILTIN;
     const pool=shuffle(d.words.filter(w=>w.l==='en-US'));
     if(!pool.length){A.err='この単語帳には英単語がありません';return render()}
     const ws=pool.slice(0,n);
@@ -1802,7 +1803,7 @@ function act(a,t){
   const ds=(t&&t.dataset)||{};const id=ds.id;
   const it=id?findItem(id):null;
   switch(a){
-   case 'tab':if(id==='words')loadDeliveries(false);stopTimer();S.tab=id;S.menu=null;S.sheet=null;S.dict=null;render();window.scrollTo(0,0);resumeTimers();break;
+   case 'tab':if(id==='words'||id==='ai')loadDeliveries(false);stopTimer();S.tab=id;S.menu=null;S.sheet=null;S.dict=null;render();window.scrollTo(0,0);resumeTimers();break;
    case 'favs':S.sheet={type:'favs'};renderLayer();break;
    case 'acct':S.menu=null;S.auth.err='';S.auth.info='';S.sheet={type:'account'};renderLayer();break;
    case 'auth-mode':S.auth.mode=S.auth.mode==='up'?'in':'up';S.auth.err='';S.auth.info='';renderLayer();break;
