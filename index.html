@@ -46,9 +46,9 @@
   --tab:rgba(28,28,30,.88); --tab-on:#0a0a0b;
   --play:#ffffff; --play-ink:#000000; color-scheme:dark;
 }
-html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);-webkit-text-size-adjust:100%}
+html{-webkit-text-size-adjust:100%;overscroll-behavior-y:none}
 html,body{height:100%}
-body{margin:0}
+body{margin:0;padding-top:env(safe-area-inset-top,0px)}
 body{background:var(--bg);color:var(--fg);font-family:var(--font);font-size:17px;line-height:1.35;-webkit-font-smoothing:antialiased;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 *{box-sizing:border-box}
@@ -57,7 +57,7 @@ button:focus-visible,[tabindex]:focus-visible,input:focus-visible{outline:2px so
 svg{display:block;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 svg .f{fill:currentColor;stroke:none}
 #app{max-width:520px;margin:0 auto;min-height:100%;display:flex;flex-direction:column}
-.screen{flex:1;display:flex;flex-direction:column;gap:18px;padding-bottom:130px}
+.screen{flex:1;display:flex;flex-direction:column;gap:18px;padding-bottom:calc(150px + env(safe-area-inset-bottom,0px))}
 /* header */
 .top{position:sticky;top:env(safe-area-inset-top,0px);z-index:6;display:flex;align-items:center;justify-content:space-between;
   min-height:72px;padding:12px 0 8px;background:var(--bg);margin:0 -2px;padding-left:2px;padding-right:2px}
@@ -140,7 +140,7 @@ svg .f{fill:currentColor;stroke:none}
 .swap button{width:54px;height:54px;border-radius:50%;border:0;background:var(--bg);color:var(--acc);display:grid;place-items:center;flex:none}
 .hint{color:var(--sub);font-size:15px;margin:0 6px;text-align:center}
 /* tab bar */
-.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;justify-content:center;pointer-events:none;
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:20;transform:translate3d(0,0,0);-webkit-transform:translate3d(0,0,0);display:flex;justify-content:center;pointer-events:none;
   padding:0 max(16px,env(safe-area-inset-left,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-right,0px))}
 .pillbar{pointer-events:auto;display:flex;gap:2px;padding:6px;border-radius:44px;background:var(--tab);width:100%;max-width:500px;
   -webkit-backdrop-filter:blur(26px) saturate(1.4);backdrop-filter:blur(26px) saturate(1.4);box-shadow:0 0 0 .5px var(--sep),0 10px 32px rgba(0,0,0,.28)}
@@ -306,7 +306,7 @@ body.camtab .screen{gap:0;padding-bottom:140px}
 @media (prefers-reduced-motion:reduce){.micring::before,.micring::after,.wave i{animation:none}}
 .micsheet{z-index:60}
 /* AIチャット */
-.cwrap{display:flex;flex-direction:column;gap:12px;padding-bottom:84px}
+.cwrap{display:flex;flex-direction:column;gap:12px;padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
 .cm{max-width:86%;border-radius:24px;padding:12px 16px;font-size:18px;line-height:1.5;overflow-wrap:anywhere;white-space:pre-wrap}
 .cm.u{align-self:flex-end;background:var(--acc);color:var(--acc-ink);border-bottom-right-radius:6px;font-weight:600}
 .cm.a{align-self:flex-start;background:var(--card);border-bottom-left-radius:6px}
